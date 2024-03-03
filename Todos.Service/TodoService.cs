@@ -29,12 +29,10 @@ namespace Todos.Service
             }
         }
 
-        public IEnumerable<Todo> GetAllTodos(int? offset = null, int? limit = null, 
-            Expression<Func<Todo, object>>? orderBy = null,
-            bool? descending = null, int? ownerId = null, string? labelFreeText = null)
+        public IEnumerable<Todo> GetAllTodos(int? offset = null, int? limit = null, int? ownerId = null, string? labelFreeText = null)
         {
             return _repository.GetList(offset, limit, t => (string.IsNullOrWhiteSpace(labelFreeText) ||
-            t.Label.Contains(labelFreeText, StringComparison.InvariantCultureIgnoreCase)) && (ownerId == null || t.OwnerId == ownerId.Value), orderBy, descending);
+            t.Label.Contains(labelFreeText, StringComparison.InvariantCultureIgnoreCase)) && (ownerId == null || t.OwnerId == ownerId.Value));
         }
 
         public Todo GetTodo(Expression<Func<Todo, bool>>? predicate = null)

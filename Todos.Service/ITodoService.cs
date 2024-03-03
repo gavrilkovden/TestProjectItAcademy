@@ -13,8 +13,7 @@ namespace Todos.Service
     public interface ITodoService
     {
         public IEnumerable<Todo> GetAllTodos(int? offset = null, int? limit = null,
-            Expression<Func<Todo, object>>? orderBy = null,
-            bool? descending = null, int? ownerId = null, string? labelFreeText = null);
+             int? ownerId = null, string? labelFreeText = null);
         public Todo GetTodo(Expression<Func<Todo, bool>>? predicate = null);
         public int GetTodoCount();
         public Todo GreateTodo(TodoDTO todoDTO);

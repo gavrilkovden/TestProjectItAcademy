@@ -43,7 +43,7 @@ namespace Users.Api.Controllers
         public ActionResult<IEnumerable<User>> GetAllUsers()
         {
             var users = _userService.GetAllUsers();
-            var totalCount = _userService.GetUserCount();
+            var totalCount = users.Count();
             Response.Headers.Add("x-Total-Count", totalCount.ToString());
 
             return Ok(users);

@@ -15,8 +15,8 @@ namespace TodosTestProject.Controllers
         public TodoController(ITodoService todoService)
         {
             _todoService = todoService;
-
         }
+
         [HttpGet("{id}")]
         public ActionResult<Todo> GetTodoById(int id)
         {
@@ -40,11 +40,10 @@ namespace TodosTestProject.Controllers
 
         [HttpGet]
         public ActionResult<IEnumerable<Todo>> GetAllTodos(int? offset = null, int? limit = null,
-            Expression<Func<Todo, object>>? orderBy = null,
-            bool? descending = null, int? ownerId = null, string? labelFreeText = null)
+ int? ownerId = null, string? labelFreeText = null)
         {
-            var todos = _todoService.GetAllTodos(offset, limit, orderBy, descending, ownerId, labelFreeText);
-            var totalCount = _todoService.GetTodoCount();
+            var todos = _todoService.GetAllTodos(offset, limit, ownerId, labelFreeText);
+            var totalCount = todos.Count();
             Response.Headers.Add("x-Total-Count", totalCount.ToString());
             return Ok(todos);
         }
