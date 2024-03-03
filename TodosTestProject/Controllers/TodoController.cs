@@ -1,6 +1,8 @@
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using TodosTestProject.Models;
+using System.Linq.Expressions;
+using Todos.Domain;
+using Todos.Service;
+using Todos.Service.DTO;
 
 namespace TodosTestProject.Controllers
 {
@@ -8,121 +10,75 @@ namespace TodosTestProject.Controllers
     [Route("api/todos")]
     public class TodoController : ControllerBase
     {
-        private static readonly List<Todo> _todoList = new List<Todo>();
+        private readonly ITodoService _todoService;
 
-        //GET /todos - получить все записи.Опционально принимать GET параметры limit(int), offset(int). 
-        //    Limit - максимально количество возвращаемых записей, offset - количество пропускаемых записей
-
-        [HttpGet]
-        public ActionResult<IEnumerable<Todo>> GetAllTodos([FromQuery] int? limit = null, [FromQuery] int? offset = null)
+        public TodoController(ITodoService todoService)
         {
-            var todos = _todoList;
-            if (todos == null)
-            {
-                return NotFound();
-            }
+            _todoService = todoService;
 
-            if (offset.HasValue && offset > 0)
-            {
-                todos = todos.Skip(offset.Value).ToList();
-            }
-
-            if (limit.HasValue && limit > 0)
-            {
-                todos = todos.Take(limit.Value).ToList();
-            }
-
-            return Ok(todos);
         }
-
-        // GET /todos/{id} - получить запись по Id
         [HttpGet("{id}")]
-        public ActionResult<Todo> GetById(int id)
+        public ActionResult<Todo> GetTodoById(int id)
         {
-            Todo todo = _todoList.FirstOrDefault(t => t.Id == id);
+            var todo = _todoService.GetTodo(u => u.Id == id);
+
             if (todo == null)
             {
                 return NotFound();
             }
+
             return Ok(todo);
         }
 
-        //   GET /todos/{id}/IsDone - получить флаг (вернуть json вида {id:1, IsDone: true})
-
-        [HttpGet("{id}/IsDone")]
-        public ActionResult<Todo> GetByIdIsDone(int id)
+        [HttpGet("count")]
+        public ActionResult<int> GetCount()
         {
-            Todo todo = _todoList.FirstOrDefault(t => t.Id == id);
-            if (todo == null)
-            {
-                return NotFound();
-            }
+            var count = _todoService.GetTodoCount();
 
-            return Ok(new { todo.Id, todo.IsDone });
+            return Ok(count);
         }
 
-        // POST /todos - создать новую запись, вернуть созданную запись с кодом ответа 201 и ссылкой на созданный ресурс.Сохранить время создание записи в UTC формате(DateTime.UtcNow)
+        [HttpGet]
+        public ActionResult<IEnumerable<Todo>> GetAllTodos(int? offset = null, int? limit = null,
+            Expression<Func<Todo, object>>? orderBy = null,
+            bool? descending = null, int? ownerId = null, string? labelFreeText = null)
+        {
+            var todos = _todoService.GetAllTodos(offset, limit, orderBy, descending, ownerId, labelFreeText);
+            var totalCount = _todoService.GetTodoCount();
+            Response.Headers.Add("x-Total-Count", totalCount.ToString());
+            return Ok(todos);
+        }
 
         [HttpPost]
-        public ActionResult<Todo> CreateTodoItem(Todo todo)
+        public ActionResult AddTodo(TodoDTO todoDTO)
         {
-            todo.CreatedDate = DateTime.UtcNow;
-            _todoList.Add(todo);
-            return CreatedAtAction(nameof(GetById), new { id = todo.Id }, todo);
+            _todoService.GreateTodo(todoDTO);
+            return CreatedAtAction(nameof(GetTodoById), new { id = todoDTO.Id }, todoDTO);
         }
-
-        //  PUT /todos/{id} - обновить запись, вернуть обновленную запись. Обновить поле UpdatedDate текущим UTC временем.
-        //  Не обновлять поля CreatedDate и UpdatedDate данными от клиентской стороны 
 
         [HttpPut("{id}")]
-        public ActionResult<Todo> UpdateTodoItem(int id, [FromBody] Todo updatedTodo)
+        public ActionResult UpdateTodo(TodoDTO updatedTodo)
         {
-            Todo existingTodo = _todoList.FirstOrDefault(t => t.Id == id);
+            var existingTodo = _todoService.UpdateTodo(updatedTodo);
 
             if (existingTodo == null)
             {
                 return NotFound();
             }
 
-            existingTodo.Label = updatedTodo.Label;
-            existingTodo.IsDone = updatedTodo.IsDone;
-            existingTodo.UpdatedDate = DateTime.UtcNow;
-
-            return Ok(existingTodo);
+            return Ok(updatedTodo);
         }
-
-        //  PATCH /todos/{id}/IsDone - обновить поле IsDone у конкретной записи, запрос отправляет json вида {isDone:true}, ответ в виде {id:1, IsDone: true}
-
-        [HttpPatch("{id}/IsDone")]
-        public ActionResult<Todo> UpdateTodoIsDone(int id, [FromBody] bool isDone)
-        {
-            Todo existingTodo = _todoList.FirstOrDefault(t => t.Id == id);
-
-            if (existingTodo == null)
-            {
-                return NotFound();
-            }
-
-            existingTodo.IsDone = isDone;
- 
-
-            return Ok(new { existingTodo.Id, existingTodo.IsDone });
-        }
-
-        //    DELETE /todos/{id} - удалить запись 
 
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public ActionResult DeleteTodo(TodoDTO todoDTO)
         {
-            Todo todo = _todoList.FirstOrDefault(t => t.Id == id);
-            if (todo == null)
+            var existingTodo = _todoService.DeleteTodo(todoDTO);
+
+            if (existingTodo == null)
             {
                 return NotFound();
             }
-            _todoList.Remove(todo);
             return Ok("Todo deleted successfully.");
         }
-
-                    
     }
 }
