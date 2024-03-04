@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Todos.Service.DTO
 {
-    public class TodoDTO
+    public class UpdateTodoDTO
     {
         public int Id { get; set; }
         public string Label { get; set; }

@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace Users.Service.DTO
 {
-    public class UserDTO
+    public class CreateUserDTO
     {
-        public int Id { get; set; }
         public string? UserName { get; set; }
     }
 }

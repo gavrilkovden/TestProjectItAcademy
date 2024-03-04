@@ -16,9 +16,9 @@ namespace Todos.Service
              int? ownerId = null, string? labelFreeText = null);
         public Todo GetTodo(Expression<Func<Todo, bool>>? predicate = null);
         public int GetTodoCount();
-        public Todo GreateTodo(TodoDTO todoDTO);
-        public Todo UpdateTodo(TodoDTO todoDTO);
-        public bool DeleteTodo(TodoDTO todoDTO);
+        public Todo GreateTodo(CreateTodoDTO todoDTO);
+        public Todo UpdateTodo(UpdateTodoDTO todoDTO);
+        public bool DeleteTodo(UpdateTodoDTO todoDTO);
     }
 
 }

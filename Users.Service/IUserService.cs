@@ -18,10 +18,10 @@ namespace Users.Service
 
         public int GetUserCount();
 
-        public User GreateUser(UserDTO userDTO);
+        public User GreateUser(CreateUserDTO userDTO);
 
-        public User UpdateUser(UserDTO userDTO);
+        public User UpdateUser(UpdateUserDTO userDTO);
 
-        public bool DeleteUser(UserDTO userDTO);
+        public bool DeleteUser(UpdateUserDTO updateUserDTO);
     }
 }

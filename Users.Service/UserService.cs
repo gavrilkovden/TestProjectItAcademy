@@ -21,11 +21,11 @@ namespace Users.Service
 
             if (_repository.Count() == 0)
             {
-                _repository.Add(new User { Id = 1, UserName = "Name1", LastUserName = "LastName1"});
-                _repository.Add(new User { Id = 2, UserName = "Name2", LastUserName = "LastName2" });
-                _repository.Add(new User { Id = 3, UserName = "Name3", LastUserName = "LastName3" });
-                _repository.Add(new User { Id = 4, UserName = "Name4", LastUserName = "LastName4" });
-                _repository.Add(new User { Id = 5, UserName = "Name5", LastUserName = "LastName5" });
+                _repository.Add(new User { Id = 1, UserName = "Name1" });
+                _repository.Add(new User { Id = 2, UserName = "Name2" });
+                _repository.Add(new User { Id = 3, UserName = "Name3" });
+                _repository.Add(new User { Id = 4, UserName = "Name4" });
+                _repository.Add(new User { Id = 5, UserName = "Name5" });
             }
         }
 
@@ -44,22 +44,34 @@ namespace Users.Service
             return _repository.Count();
         }
 
-        public User GreateUser(UserDTO userDTO)
+        public User GreateUser(CreateUserDTO createUserDTO)
         {
-            var user = _mapper.Map<User>(userDTO);
+            var user = _mapper.Map<User>(createUserDTO);
             return _repository.Add(user);
         }
 
-        public User UpdateUser(UserDTO userDTO)
+        public User UpdateUser(UpdateUserDTO updateUserDTO)
         {
-            var user = _mapper.Map<User>(userDTO);
-            return _repository.Update(user);
+            var existingUser = GetUser(d => d.Id == updateUserDTO.Id);
+
+            if (existingUser == null)
+            {
+                throw new Exception("User with specified Id not found.");
+            }
+            _mapper.Map(updateUserDTO, existingUser);
+
+            return _repository.Update(existingUser);
         }
 
-        public bool DeleteUser(UserDTO userDTO)
+        public bool DeleteUser(UpdateUserDTO updateUserDTO)
         {
-            var user = _mapper.Map<User>(userDTO);
-            return _repository.Delete(user);
+            var existingUser = GetUser(d => d.Id == updateUserDTO.Id);
+
+            if (existingUser == null)
+            {
+                throw new Exception("User with specified Id not found.");
+            }
+            return _repository.Delete(existingUser);
         }
     }
 }

@@ -49,14 +49,19 @@ namespace TodosTestProject.Controllers
         }
 
         [HttpPost]
-        public ActionResult AddTodo(TodoDTO todoDTO)
+        public ActionResult AddTodo(CreateTodoDTO todoDTO)
         {
-            _todoService.GreateTodo(todoDTO);
-            return CreatedAtAction(nameof(GetTodoById), new { id = todoDTO.Id }, todoDTO);
+            var createdTodo = _todoService.GreateTodo(todoDTO);
+
+            if (createdTodo == null)
+            {
+                return BadRequest();
+            }
+            return CreatedAtAction(nameof(GetTodoById), new { id = createdTodo.Id }, createdTodo);
         }
 
         [HttpPut("{id}")]
-        public ActionResult UpdateTodo(TodoDTO updatedTodo)
+        public ActionResult UpdateTodo(UpdateTodoDTO updatedTodo)
         {
             var existingTodo = _todoService.UpdateTodo(updatedTodo);
 
@@ -69,14 +74,9 @@ namespace TodosTestProject.Controllers
         }
 
         [HttpDelete("{id}")]
-        public ActionResult DeleteTodo(TodoDTO todoDTO)
+        public ActionResult DeleteTodo(UpdateTodoDTO todoDTO)
         {
-            var existingTodo = _todoService.DeleteTodo(todoDTO);
-
-            if (existingTodo == null)
-            {
-                return NotFound();
-            }
+           _todoService.DeleteTodo(todoDTO);
             return Ok("Todo deleted successfully.");
         }
     }

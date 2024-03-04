@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using Common.Domain;
 using Common.Repositories;
 using System.Linq.Expressions;
 using Todos.Domain;
 using Todos.Service.DTO;
 using Users.Service;
+using Users.Service.DTO;
 
 namespace Todos.Service
 {
@@ -45,34 +47,46 @@ namespace Todos.Service
             return _repository.Count();
         }
 
-        public Todo GreateTodo(TodoDTO todoDTO)
+        public Todo GreateTodo(CreateTodoDTO todoDTO)
         {
             var user = _userService.GetUser(u => u.Id == todoDTO.OwnerId);
             if (user == null)
             {
-                throw new Exception("User with specified OwnerId not found.");
+                throw new Exception("Todo with specified OwnerId not found.");
             }
 
             var todo = _mapper.Map<Todo>(todoDTO);
             return _repository.Add(todo);
         }
 
-        public Todo UpdateTodo(TodoDTO todoDTO)
+        public Todo UpdateTodo(UpdateTodoDTO updateTodoDTO)
         {
-            var user = _userService.GetUser(u => u.Id == todoDTO.OwnerId);
+            var user = _userService.GetUser(u => u.Id == updateTodoDTO.OwnerId);
             if (user == null)
             {
-                throw new Exception("User with specified OwnerId not found.");
+                throw new Exception("Todo with specified OwnerId not found.");
             }
 
-            var todo = _mapper.Map<Todo>(todoDTO);
-            return _repository.Update(todo);
+            var existingTodo = GetTodo(d => d.Id == updateTodoDTO.Id);
+
+            if (existingTodo == null)
+            {
+                throw new Exception("Todo with specified Id not found.");
+            }
+            _mapper.Map(updateTodoDTO, existingTodo);
+
+            return _repository.Update(existingTodo);
         }
 
-        public bool DeleteTodo(TodoDTO todoDTO)
+        public bool DeleteTodo(UpdateTodoDTO updateTodoDTO)
         {
-            var todo = _mapper.Map<Todo>(todoDTO);
-            return _repository.Delete(todo);
+            var existingTodo = GetTodo(d => d.Id == updateTodoDTO.Id);
+
+            if (existingTodo == null)
+            {
+                throw new Exception("Todo with specified Id not found.");
+            }
+            return _repository.Delete(existingTodo);
         }
     }
 }

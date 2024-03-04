@@ -50,14 +50,14 @@ namespace Users.Api.Controllers
         }
 
         [HttpPost]
-        public ActionResult AddUser(UserDTO userDTO)
+        public ActionResult AddUser(CreateUserDTO ñreateUserDTO)
         {
-            _userService.GreateUser(userDTO);
-            return CreatedAtAction(nameof(GetUserById), new { id = userDTO.Id }, userDTO);
+            var ñreateduser = _userService.GreateUser(ñreateUserDTO);
+            return CreatedAtAction(nameof(GetUserById), new { id = ñreateduser.Id }, ñreateduser);
         }
 
         [HttpPut("{id}")]
-        public ActionResult UpdateUser(UserDTO updatedUser)
+        public ActionResult UpdateUser(UpdateUserDTO updatedUser)
         {
             var existingUser = _userService.UpdateUser(updatedUser);
 
@@ -70,14 +70,9 @@ namespace Users.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        public ActionResult DeleteUser(UserDTO userDTO)
+        public ActionResult DeleteUser(UpdateUserDTO updatedUser)
         {
-            var existingUser = _userService.DeleteUser(userDTO);
-
-            if (existingUser == null)
-            {
-                return NotFound();
-            }
+            _userService.DeleteUser(updatedUser);
             return Ok("User deleted successfully.");
         }
     }
