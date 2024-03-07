@@ -5,6 +5,9 @@ using System;
 using AutoMapper;
 using Users.Service.DTO;
 using System.Xml.Linq;
+using Users.Service.Validators;
+using FluentValidation;
+using System.ComponentModel.DataAnnotations;
 
 namespace Users.Service
 
@@ -13,11 +16,11 @@ namespace Users.Service
     {
         private readonly IRepository<User> _repository;
         private readonly IMapper _mapper;
-
         public UserService(IRepository<User> repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;
+
 
             if (_repository.Count() == 0)
             {

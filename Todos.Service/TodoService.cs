@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Common.Domain;
 using Common.Repositories;
+using Newtonsoft.Json;
+using Serilog;
 using System.Linq.Expressions;
 using Todos.Domain;
 using Todos.Service.DTO;
@@ -49,14 +51,24 @@ namespace Todos.Service
 
         public Todo GreateTodo(CreateTodoDTO todoDTO)
         {
-            var user = _userService.GetUser(u => u.Id == todoDTO.OwnerId);
-            if (user == null)
+            try
             {
-                throw new Exception("Todo with specified OwnerId not found.");
-            }
+                Log.Information($"Creating Todo: {JsonConvert.SerializeObject(todoDTO)}");
 
-            var todo = _mapper.Map<Todo>(todoDTO);
-            return _repository.Add(todo);
+                var user = _userService.GetUser(u => u.Id == todoDTO.OwnerId);
+                if (user == null)
+                {
+                    throw new Exception("Todo with specified OwnerId not found.");
+                }
+
+                var todo = _mapper.Map<Todo>(todoDTO);
+                return _repository.Add(todo);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, messageTemplate: "Error creating Todo.");
+                throw; 
+            }
         }
 
         public Todo UpdateTodo(UpdateTodoDTO updateTodoDTO)
