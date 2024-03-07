@@ -35,18 +35,49 @@ namespace Todos.Service
 
         public IEnumerable<Todo> GetAllTodos(int? offset = null, int? limit = null, int? ownerId = null, string? labelFreeText = null)
         {
-            return _repository.GetList(offset, limit, t => (string.IsNullOrWhiteSpace(labelFreeText) ||
-            t.Label.Contains(labelFreeText, StringComparison.InvariantCultureIgnoreCase)) && (ownerId == null || t.OwnerId == ownerId.Value));
+            try
+            {
+                Log.Information($"Getting Todos. Offset: {offset}, Limit: {limit}, OwnerId: {ownerId}, LabelFreeText: {labelFreeText}");
+
+                return _repository.GetList(offset, limit, t => (string.IsNullOrWhiteSpace(labelFreeText) ||
+                    t.Label.Contains(labelFreeText, StringComparison.InvariantCultureIgnoreCase)) && (ownerId == null || t.OwnerId == ownerId.Value));
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, messageTemplate: "Error getting Todos.");
+                throw;
+            }
         }
 
         public Todo GetTodo(Expression<Func<Todo, bool>>? predicate = null)
         {
-            return _repository.SingleOrDefault(predicate);
+            try
+            {
+                Log.Information($"Getting Todo. Predicate: {predicate?.ToString()}");
+
+                return _repository.SingleOrDefault(predicate);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, messageTemplate: "Error getting Todo.");
+                throw;
+            }
+
         }
 
         public int GetTodoCount()
         {
-            return _repository.Count();
+            try
+            {
+                Log.Information($"Getting Todo Count.");
+
+                return _repository.Count();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, messageTemplate: "Error getting Todo Count.");
+                throw;
+            }
         }
 
         public Todo GreateTodo(CreateTodoDTO todoDTO)
@@ -73,32 +104,53 @@ namespace Todos.Service
 
         public Todo UpdateTodo(UpdateTodoDTO updateTodoDTO)
         {
-            var user = _userService.GetUser(u => u.Id == updateTodoDTO.OwnerId);
-            if (user == null)
+            try
             {
-                throw new Exception("Todo with specified OwnerId not found.");
+                Log.Information($"Updating Todo: {JsonConvert.SerializeObject(updateTodoDTO)}");
+
+                var user = _userService.GetUser(u => u.Id == updateTodoDTO.OwnerId);
+                if (user == null)
+                {
+                    throw new Exception("Todo with specified OwnerId not found.");
+                }
+
+                var existingTodo = GetTodo(d => d.Id == updateTodoDTO.Id);
+
+                if (existingTodo == null)
+                {
+                    throw new Exception("Todo with specified Id not found.");
+                }
+                _mapper.Map(updateTodoDTO, existingTodo);
+
+                return _repository.Update(existingTodo);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, messageTemplate: "Error updating Todo.");
+                throw;
             }
 
-            var existingTodo = GetTodo(d => d.Id == updateTodoDTO.Id);
-
-            if (existingTodo == null)
-            {
-                throw new Exception("Todo with specified Id not found.");
-            }
-            _mapper.Map(updateTodoDTO, existingTodo);
-
-            return _repository.Update(existingTodo);
         }
 
         public bool DeleteTodo(UpdateTodoDTO updateTodoDTO)
         {
-            var existingTodo = GetTodo(d => d.Id == updateTodoDTO.Id);
-
-            if (existingTodo == null)
+            try
             {
-                throw new Exception("Todo with specified Id not found.");
+                Log.Information($"Deleting Todo: {JsonConvert.SerializeObject(updateTodoDTO)}");
+
+                var existingTodo = GetTodo(d => d.Id == updateTodoDTO.Id);
+
+                if (existingTodo == null)
+                {
+                    throw new Exception("Todo with specified Id not found.");
+                }
+                return _repository.Delete(existingTodo);
             }
-            return _repository.Delete(existingTodo);
+            catch (Exception ex)
+            {
+                Log.Error(ex, messageTemplate: "Error deleting Todo.");
+                throw;
+            }
         }
     }
 }

@@ -8,6 +8,8 @@ using System.Xml.Linq;
 using Users.Service.Validators;
 using FluentValidation;
 using System.ComponentModel.DataAnnotations;
+using Serilog;
+using Newtonsoft.Json;
 
 namespace Users.Service
 
@@ -34,47 +36,107 @@ namespace Users.Service
 
         public IEnumerable<User> GetAllUsers()
         {
-            return _repository.GetList();
+            try
+            {
+                Log.Information("Getting all users.");
+
+                return _repository.GetList();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, messageTemplate: "Error getting all users.");
+                throw;
+            }
         }
 
         public User GetUser(Expression<Func<User, bool>>? predicate = null)
         {
-            return _repository.SingleOrDefault(predicate);
+            try
+            {
+                Log.Information($"Getting user with predicate: {predicate?.ToString() ?? "null"}.");
+
+                return _repository.SingleOrDefault(predicate);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, messageTemplate: "Error getting user.");
+                throw;
+            }
         }
 
         public int GetUserCount()
         {
-            return _repository.Count();
+            try
+            {
+                Log.Information("Getting user count.");
+
+                return _repository.Count();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, messageTemplate: "Error getting user count.");
+                throw;
+            }
         }
 
         public User GreateUser(CreateUserDTO createUserDTO)
         {
-            var user = _mapper.Map<User>(createUserDTO);
-            return _repository.Add(user);
+            try
+            {
+                Log.Information($"Creating user: {JsonConvert.SerializeObject(createUserDTO)}");
+
+                var user = _mapper.Map<User>(createUserDTO);
+                return _repository.Add(user);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, messageTemplate: "Error creating user.");
+                throw;
+            }
         }
 
         public User UpdateUser(UpdateUserDTO updateUserDTO)
         {
-            var existingUser = GetUser(d => d.Id == updateUserDTO.Id);
-
-            if (existingUser == null)
+            try
             {
-                throw new Exception("User with specified Id not found.");
-            }
-            _mapper.Map(updateUserDTO, existingUser);
+                Log.Information($"Updating user: {JsonConvert.SerializeObject(updateUserDTO)}");
 
-            return _repository.Update(existingUser);
+                var existingUser = GetUser(d => d.Id == updateUserDTO.Id);
+
+                if (existingUser == null)
+                {
+                    throw new Exception("User with specified Id not found.");
+                }
+                _mapper.Map(updateUserDTO, existingUser);
+
+                return _repository.Update(existingUser);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, messageTemplate: "Error updating user.");
+                throw;
+            }
         }
 
         public bool DeleteUser(UpdateUserDTO updateUserDTO)
         {
-            var existingUser = GetUser(d => d.Id == updateUserDTO.Id);
-
-            if (existingUser == null)
+            try
             {
-                throw new Exception("User with specified Id not found.");
+                Log.Information($"Deleting user: {JsonConvert.SerializeObject(updateUserDTO)}");
+
+                var existingUser = GetUser(d => d.Id == updateUserDTO.Id);
+
+                if (existingUser == null)
+                {
+                    throw new Exception("User with specified Id not found.");
+                }
+                return _repository.Delete(existingUser);
             }
-            return _repository.Delete(existingUser);
+            catch (Exception ex)
+            {
+                Log.Error(ex, messageTemplate: "Error deleting user.");
+                throw;
+            }
         }
     }
 }
