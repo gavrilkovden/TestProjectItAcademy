@@ -1,5 +1,8 @@
+using Common.Api;
 using Common.Domain;
 using Common.Repositories;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 using Serilog.Events;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
@@ -27,6 +30,9 @@ try
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
     builder.Services.AddFluentValidationAutoValidation();
+
+    builder.Services.AddTodoDB(builder.Configuration);
+
     builder.Host.UseSerilog();
     var app = builder.Build();
 
@@ -40,6 +46,8 @@ try
     app.UseHttpsRedirection();
 
     app.UseAuthorization();
+
+    app.UseMiddleware<ExceptionsHandlerMiddleware>();
 
     app.MapControllers();
 

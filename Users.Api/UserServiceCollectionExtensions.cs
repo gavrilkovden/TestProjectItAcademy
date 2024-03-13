@@ -13,9 +13,10 @@ namespace Users.Api
         public static IServiceCollection AddUserServices(this IServiceCollection services)
         {
             services.AddTransient<IUserService, UserService>();
-            services.AddTransient<IRepository<User>, BaseRepository<User>>();
+            services.AddTransient<IRepository<User>, EntityRepository<User>>();
             services.AddAutoMapper(typeof(MappingProfile));
-            services.AddValidatorsFromAssemblies(new[] { Assembly.GetExecutingAssembly() }, includeInternalTypes: true);
+            services.AddValidatorsFromAssemblies(new[] { Assembly.GetExecutingAssembly(), typeof(UserService).Assembly }, includeInternalTypes: true);
+
             return services;
         }
     }

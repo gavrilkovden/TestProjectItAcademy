@@ -13,9 +13,9 @@ namespace Todos.Api
         public static IServiceCollection AddTodoServices(this IServiceCollection services)
         {
             services.AddTransient<ITodoService, TodoService>();
-            services.AddTransient<IRepository<Todo>, BaseRepository<Todo>>();
+            services.AddTransient<IRepository<Todo>, EntityRepository<Todo>>();
             services.AddAutoMapper(typeof(MappingProfile));
-            services.AddValidatorsFromAssemblies(new[] { Assembly.GetExecutingAssembly() }, includeInternalTypes: true);
+            services.AddValidatorsFromAssemblies(new[] { Assembly.GetExecutingAssembly(), typeof(TodoService).Assembly }, includeInternalTypes: true);
             return services;
         }
     }

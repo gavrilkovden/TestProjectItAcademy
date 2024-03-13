@@ -1,4 +1,7 @@
-﻿using Common.Repositories;
+﻿using Common.Domain.Exceptions;
+using Common.Repositories;
+using Newtonsoft.Json;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,13 +15,18 @@ namespace Todos.Service
 {
     public interface ITodoService
     {
-        public IEnumerable<Todo> GetAllTodos(int? offset = null, int? limit = null,
-             int? ownerId = null, string? labelFreeText = null);
-        public Todo GetTodo(Expression<Func<Todo, bool>>? predicate = null);
-        public int GetTodoCount();
-        public Todo GreateTodo(CreateTodoDTO todoDTO);
-        public Todo UpdateTodo(UpdateTodoDTO todoDTO);
-        public bool DeleteTodo(UpdateTodoDTO todoDTO);
+        public  Task<IEnumerable<Todo>> GetAllTodos(int? offset = null, int? limit = null, int? ownerId = null, string? labelFreeText = null);
+
+        public  Task<Todo> GetTodoAsync(Expression<Func<Todo, bool>>? predicate = null);
+
+        public  Task<int> GetTodoCountAsync();
+
+        public  Task<Todo> GreateTodoAsync(CreateTodoDTO todoDTO);
+
+        public  Task<Todo> UpdateTodoAsync(UpdateTodoDTO updateTodoDTO);
+
+        public  Task<bool> DeleteTodoAsync(UpdateTodoDTO updateTodoDTO);
+
     }
 
 }

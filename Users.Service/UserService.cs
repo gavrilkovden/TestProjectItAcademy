@@ -10,6 +10,7 @@ using FluentValidation;
 using System.ComponentModel.DataAnnotations;
 using Serilog;
 using Newtonsoft.Json;
+using Common.Domain.Exceptions;
 
 namespace Users.Service
 
@@ -22,25 +23,27 @@ namespace Users.Service
         {
             _repository = repository;
             _mapper = mapper;
-
-
-            if (_repository.Count() == 0)
-            {
-                _repository.Add(new User { Id = 1, UserName = "Name1" });
-                _repository.Add(new User { Id = 2, UserName = "Name2" });
-                _repository.Add(new User { Id = 3, UserName = "Name3" });
-                _repository.Add(new User { Id = 4, UserName = "Name4" });
-                _repository.Add(new User { Id = 5, UserName = "Name5" });
-            }
         }
 
-        public IEnumerable<User> GetAllUsers()
+        public async Task<IEnumerable<User>> GetAllUsersAsync()
         {
             try
             {
                 Log.Information("Getting all users.");
 
-                return _repository.GetList();
+                var users = await _repository.GetListAsync();
+
+                if (!users.Any())
+                {
+                    throw new NotFoundException("No Users found.");
+                }
+
+                return users;
+            }
+            catch (NotFoundException ex)
+            {
+                Log.Error(ex, messageTemplate: "Error getting all users - NotFoundException.");
+                throw ;
             }
             catch (Exception ex)
             {
@@ -49,13 +52,25 @@ namespace Users.Service
             }
         }
 
-        public User GetUser(Expression<Func<User, bool>>? predicate = null)
+        public async Task<User> GetUserAsync(Expression<Func<User, bool>>? predicate = null)
         {
             try
             {
                 Log.Information($"Getting user with predicate: {predicate?.ToString() ?? "null"}.");
 
-                return _repository.SingleOrDefault(predicate);
+                var user = await _repository.SingleOrDefaultAsync(predicate);
+
+                if (user == null)
+                {
+                    throw new NotFoundException("User not found.");
+                }
+
+                return user;
+            }
+            catch (NotFoundException ex)
+            {
+                Log.Error(ex, messageTemplate: "Error getting user - NotFoundException.");
+                throw;
             }
             catch (Exception ex)
             {
@@ -64,79 +79,113 @@ namespace Users.Service
             }
         }
 
-        public int GetUserCount()
+    public async Task<int> GetUserCountAsync()
+    {
+        try
         {
-            try
-            {
-                Log.Information("Getting user count.");
+            Log.Information("Getting user count.");
 
-                return _repository.Count();
-            }
-            catch (Exception ex)
+            var count = await _repository.CountAsync();
+
+            if (count == 0)
             {
-                Log.Error(ex, messageTemplate: "Error getting user count.");
-                throw;
+                throw new NotFoundException("No Users found.");
             }
+
+            return count;
         }
-
-        public User GreateUser(CreateUserDTO createUserDTO)
+        catch (NotFoundException ex)
         {
-            try
-            {
-                Log.Information($"Creating user: {JsonConvert.SerializeObject(createUserDTO)}");
-
-                var user = _mapper.Map<User>(createUserDTO);
-                return _repository.Add(user);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, messageTemplate: "Error creating user.");
-                throw;
-            }
+            Log.Error(ex, messageTemplate: "Error getting user count - NotFoundException.");
+            throw;
         }
-
-        public User UpdateUser(UpdateUserDTO updateUserDTO)
+        catch (Exception ex)
         {
-            try
-            {
-                Log.Information($"Updating user: {JsonConvert.SerializeObject(updateUserDTO)}");
-
-                var existingUser = GetUser(d => d.Id == updateUserDTO.Id);
-
-                if (existingUser == null)
-                {
-                    throw new Exception("User with specified Id not found.");
-                }
-                _mapper.Map(updateUserDTO, existingUser);
-
-                return _repository.Update(existingUser);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, messageTemplate: "Error updating user.");
-                throw;
-            }
+            Log.Error(ex, messageTemplate: "Error getting user count.");
+            throw;
         }
+    }
 
-        public bool DeleteUser(UpdateUserDTO updateUserDTO)
+    public async Task<User> CreateUserAsync(CreateUserDTO createUserDTO)
+    {
+        try
         {
-            try
-            {
-                Log.Information($"Deleting user: {JsonConvert.SerializeObject(updateUserDTO)}");
+            Log.Information($"Creating user: {JsonConvert.SerializeObject(createUserDTO)}");
 
-                var existingUser = GetUser(d => d.Id == updateUserDTO.Id);
-
-                if (existingUser == null)
-                {
-                    throw new Exception("User with specified Id not found.");
-                }
-                return _repository.Delete(existingUser);
-            }
-            catch (Exception ex)
+            if (string.IsNullOrWhiteSpace(createUserDTO.UserName))
             {
-                Log.Error(ex, messageTemplate: "Error deleting user.");
-                throw;
+                throw new BadRequestException("UserName is required.");
             }
+
+            var user = _mapper.Map<User>(createUserDTO);
+            return await _repository.AddAsync(user);
         }
+        catch (BadRequestException ex)
+        {
+            Log.Error(ex, messageTemplate: "Error creating user - BadRequestException.");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, messageTemplate: "Error creating user.");
+            throw;
+        }
+    }
+
+    public async Task<User> UpdateUserAsync(UpdateUserDTO updateUserDTO)
+    {
+        try
+        {
+            Log.Information($"Updating user: {JsonConvert.SerializeObject(updateUserDTO)}");
+
+            var existingUser = await GetUserAsync(d => d.Id == updateUserDTO.Id);
+
+            if (existingUser == null)
+            {
+                throw new NotFoundException("User with specified Id not found.");
+            }
+
+            _mapper.Map(updateUserDTO, existingUser);
+
+            return await _repository.UpdateAsync(existingUser);
+        }
+        catch (NotFoundException ex)
+        {
+            Log.Error(ex, messageTemplate: "Error updating user - NotFoundException.");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, messageTemplate: "Error updating user.");
+            throw;
+        }
+    }
+
+    public async Task<bool> DeleteUserAsync(UpdateUserDTO updateUserDTO)
+    {
+        try
+        {
+            Log.Information($"Deleting user: {JsonConvert.SerializeObject(updateUserDTO)}");
+
+            var existingUser = await GetUserAsync(d => d.Id == updateUserDTO.Id);
+
+            if (existingUser == null)
+            {
+                throw new NotFoundException("User with specified Id not found.");
+            }
+
+            return await _repository.DeleteAsync(existingUser);
+        }
+        catch (NotFoundException ex)
+        {
+            Log.Error(ex, messageTemplate: "Error deleting user - NotFoundException.");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, messageTemplate: "Error deleting user.");
+            throw;
+        }
+    }
     }
 }

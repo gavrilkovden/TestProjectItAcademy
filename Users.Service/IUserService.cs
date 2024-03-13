@@ -12,16 +12,16 @@ namespace Users.Service
 {
     public interface IUserService
     {
-        public IEnumerable<User> GetAllUsers();
+        public Task<IEnumerable<User>> GetAllUsersAsync();
 
-        public User GetUser(Expression<Func<User, bool>>? predicate = null);
+        public Task<User> GetUserAsync(Expression<Func<User, bool>>? predicate = null);
 
-        public int GetUserCount();
+        public Task<int> GetUserCountAsync();
 
-        public User GreateUser(CreateUserDTO userDTO);
+        public Task<User> CreateUserAsync(CreateUserDTO userDTO);
 
-        public User UpdateUser(UpdateUserDTO userDTO);
+        public Task<User> UpdateUserAsync(UpdateUserDTO userDTO);
 
-        public bool DeleteUser(UpdateUserDTO updateUserDTO);
+        public Task<bool> DeleteUserAsync(UpdateUserDTO updateUserDTO);
     }
 }

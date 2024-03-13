@@ -12,8 +12,8 @@ namespace Todos.Service.Validators
     {
         public UpdateTodoDTOValidator()
         {
-            RuleFor(e => e.OwnerId).GreaterThan(2).NotEmpty().WithMessage("OwnerId error");
-            RuleFor(e => e.Label).MinimumLength(3).MaximumLength(10).Must(e => e.StartsWith("todo"));
+         //   RuleFor(e => e.OwnerId).GreaterThan(2).NotEmpty().WithMessage("OwnerId error");
+          //  RuleFor(e => e.Label).MinimumLength(3).MaximumLength(10).Must(e => e.StartsWith("todo"));
         }
     }
 }

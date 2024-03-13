@@ -5,6 +5,7 @@ using Serilog;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using Users.Api;
 using Users.Service;
+using Common.Api;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
@@ -22,6 +23,9 @@ try
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
     builder.Services.AddFluentValidationAutoValidation();
+    var configuration = builder.Configuration;
+    builder.Services.AddTodoDB(configuration);
+
     builder.Host.UseSerilog();
     var app = builder.Build();
 
@@ -35,6 +39,8 @@ try
     app.UseHttpsRedirection();
 
     app.UseAuthorization();
+
+    app.UseMiddleware<ExceptionsHandlerMiddleware>();
 
     app.MapControllers();
 
