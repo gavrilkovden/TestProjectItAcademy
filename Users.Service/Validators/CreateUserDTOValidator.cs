@@ -12,8 +12,8 @@ namespace Users.Service.Validators
     {
         public CreateUserDTOValidator()
         {
-            RuleFor(e => e.UserName).NotEmpty().WithMessage("UserName error");
-            RuleFor(e => e.UserName).MinimumLength(3).MaximumLength(10).Must(e => e.StartsWith("user"));
+           // RuleFor(e => e.UserName).NotEmpty().WithMessage("UserName error");
+            //RuleFor(e => e.UserName).MinimumLength(3).MaximumLength(10).Must(e => e.StartsWith("user"));
         }
     }
 }

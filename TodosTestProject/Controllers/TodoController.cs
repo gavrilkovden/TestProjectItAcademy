@@ -60,7 +60,7 @@ namespace TodosTestProject.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateTodo(UpdateTodoDTO updatedTodo)
+        public async Task<ActionResult<UpdateTodoDTO>> UpdateTodo(UpdateTodoDTO updatedTodo)
         {
             var existingTodo = await _todoService.UpdateTodoAsync(updatedTodo);
 

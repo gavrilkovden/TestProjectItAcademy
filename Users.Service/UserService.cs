@@ -25,63 +25,37 @@ namespace Users.Service
             _mapper = mapper;
         }
 
+
         public async Task<IEnumerable<User>> GetAllUsersAsync()
         {
-            try
-            {
-                Log.Information("Getting all users.");
+            Log.Information("Getting all users.");
 
-                var users = await _repository.GetListAsync();
+            var users = await _repository.GetListAsync();
 
-                if (!users.Any())
-                {
-                    throw new NotFoundException("No Users found.");
-                }
+            if (!users.Any())
+            {
+                throw new NotFoundException("No Users found.");
+            }
 
-                return users;
-            }
-            catch (NotFoundException ex)
-            {
-                Log.Error(ex, messageTemplate: "Error getting all users - NotFoundException.");
-                throw ;
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, messageTemplate: "Error getting all users.");
-                throw;
-            }
+            return users;
         }
+
 
         public async Task<User> GetUserAsync(Expression<Func<User, bool>>? predicate = null)
         {
-            try
-            {
-                Log.Information($"Getting user with predicate: {predicate?.ToString() ?? "null"}.");
+            Log.Information($"Getting user with predicate: {predicate?.ToString() ?? "null"}.");
 
-                var user = await _repository.SingleOrDefaultAsync(predicate);
+            var user = await _repository.SingleOrDefaultAsync(predicate);
 
-                if (user == null)
-                {
-                    throw new NotFoundException("User not found.");
-                }
+            if (user == null)
+            {
+                throw new NotFoundException("User not found.");
+            }
 
-                return user;
-            }
-            catch (NotFoundException ex)
-            {
-                Log.Error(ex, messageTemplate: "Error getting user - NotFoundException.");
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, messageTemplate: "Error getting user.");
-                throw;
-            }
+            return user;
         }
 
-    public async Task<int> GetUserCountAsync()
-    {
-        try
+        public async Task<int> GetUserCountAsync()
         {
             Log.Information("Getting user count.");
 
@@ -94,21 +68,8 @@ namespace Users.Service
 
             return count;
         }
-        catch (NotFoundException ex)
-        {
-            Log.Error(ex, messageTemplate: "Error getting user count - NotFoundException.");
-            throw;
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, messageTemplate: "Error getting user count.");
-            throw;
-        }
-    }
 
-    public async Task<User> CreateUserAsync(CreateUserDTO createUserDTO)
-    {
-        try
+        public async Task<User> CreateUserAsync(CreateUserDTO createUserDTO)
         {
             Log.Information($"Creating user: {JsonConvert.SerializeObject(createUserDTO)}");
 
@@ -120,21 +81,8 @@ namespace Users.Service
             var user = _mapper.Map<User>(createUserDTO);
             return await _repository.AddAsync(user);
         }
-        catch (BadRequestException ex)
-        {
-            Log.Error(ex, messageTemplate: "Error creating user - BadRequestException.");
-            throw;
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, messageTemplate: "Error creating user.");
-            throw;
-        }
-    }
 
-    public async Task<User> UpdateUserAsync(UpdateUserDTO updateUserDTO)
-    {
-        try
+        public async Task<User> UpdateUserAsync(UpdateUserDTO updateUserDTO)
         {
             Log.Information($"Updating user: {JsonConvert.SerializeObject(updateUserDTO)}");
 
@@ -149,21 +97,8 @@ namespace Users.Service
 
             return await _repository.UpdateAsync(existingUser);
         }
-        catch (NotFoundException ex)
-        {
-            Log.Error(ex, messageTemplate: "Error updating user - NotFoundException.");
-            throw;
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, messageTemplate: "Error updating user.");
-            throw;
-        }
-    }
 
-    public async Task<bool> DeleteUserAsync(UpdateUserDTO updateUserDTO)
-    {
-        try
+        public async Task<bool> DeleteUserAsync(UpdateUserDTO updateUserDTO)
         {
             Log.Information($"Deleting user: {JsonConvert.SerializeObject(updateUserDTO)}");
 
@@ -176,16 +111,5 @@ namespace Users.Service
 
             return await _repository.DeleteAsync(existingUser);
         }
-        catch (NotFoundException ex)
-        {
-            Log.Error(ex, messageTemplate: "Error deleting user - NotFoundException.");
-            throw;
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, messageTemplate: "Error deleting user.");
-            throw;
-        }
-    }
     }
 }

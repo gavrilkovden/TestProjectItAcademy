@@ -3,6 +3,7 @@ using System.Net;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Common.Domain.Exceptions;
+using Serilog;
 
 namespace Common.Api
 {
@@ -24,6 +25,7 @@ namespace Common.Api
             }
             catch (Exception e)
             {
+                Log.Error(e, "Exception occurred.");
                 var statusCode = HttpStatusCode.InternalServerError;
                 var result = string.Empty;
                 switch (e)

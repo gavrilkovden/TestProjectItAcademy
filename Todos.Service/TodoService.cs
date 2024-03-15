@@ -27,8 +27,6 @@ namespace Todos.Service
 
         public async Task<IEnumerable<Todo>> GetAllTodos(int? offset = null, int? limit = null, int? ownerId = null, string? labelFreeText = null)
         {
-            try
-            {
                 if (ownerId.HasValue && (await _userService.GetUserAsync(u => u.Id == ownerId.Value)) == null)
                 {
                     throw new NotFoundException($"User with Id {ownerId} not found.");
@@ -47,28 +45,10 @@ namespace Todos.Service
                 }
 
                 return todos;
-            }
-            catch (BadRequestException ex)
-            {
-                Log.Error(ex, messageTemplate: "Error getting Todos - BadRequestException.");
-                throw;
-            }
-            catch (NotFoundException ex)
-            {
-                Log.Error(ex, messageTemplate: "Error getting Todos - NotFoundException.");
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, messageTemplate: "Error getting Todos.");
-                throw;
-            }
         }
 
         public async Task<Todo> GetTodoAsync(Expression<Func<Todo, bool>>? predicate = null)
         {
-            try
-            {
                 Log.Information($"Getting Todo. Predicate: {predicate?.ToString()}");
 
                 var todo = await _repository.SingleOrDefaultAsync(predicate);
@@ -79,23 +59,10 @@ namespace Todos.Service
                 }
 
                 return todo;
-            }
-            catch (NotFoundException ex)
-            {
-                Log.Error(ex, messageTemplate: "Error getting Todo - NotFoundException.");
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, messageTemplate: "Error getting Todo.");
-                throw;
-            }
         }
 
         public async Task<int> GetTodoCountAsync()
         {
-            try
-            {
                 Log.Information($"Getting Todo Count.");
 
                 var count = await _repository.CountAsync();
@@ -106,23 +73,10 @@ namespace Todos.Service
                 }
 
                 return count;
-            }
-            catch (NotFoundException ex)
-            {
-                Log.Error(ex, messageTemplate: "Error getting Todo Count - NotFoundException.");
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, messageTemplate: "Error getting Todo Count.");
-                throw;
-            }
         }
 
         public async Task<Todo> GreateTodoAsync(CreateTodoDTO todoDTO)
         {
-            try
-            {
                 Log.Information($"Creating Todo: {JsonConvert.SerializeObject(todoDTO)}");
 
                 var user = await _userService.GetUserAsync(u => u.Id == todoDTO.OwnerId);
@@ -133,23 +87,10 @@ namespace Todos.Service
 
                 var todo = _mapper.Map<Todo>(todoDTO);
                 return await _repository.AddAsync(todo);
-            }
-            catch (NotFoundException ex)
-            {
-                Log.Error(ex, messageTemplate: "Error creating Todo - NotFoundException.");
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, messageTemplate: "Error creating Todo.");
-                throw;
-            }
         }
 
         public async Task<Todo> UpdateTodoAsync(UpdateTodoDTO updateTodoDTO)
         {
-            try
-            {
                 Log.Information($"Updating Todo: {JsonConvert.SerializeObject(updateTodoDTO)}");
 
                 var user = await _userService.GetUserAsync(u => u.Id == updateTodoDTO.OwnerId);
@@ -167,23 +108,10 @@ namespace Todos.Service
                 _mapper.Map(updateTodoDTO, existingTodo);
 
                 return await _repository.UpdateAsync(existingTodo);
-            }
-            catch (NotFoundException ex)
-            {
-                Log.Error(ex, messageTemplate: "Error updating Todo - NotFoundException.");
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, messageTemplate: "Error updating Todo.");
-                throw;
-            }
         }
 
         public async Task<bool> DeleteTodoAsync(UpdateTodoDTO updateTodoDTO)
         {
-            try
-            {
                 Log.Information($"Deleting Todo: {JsonConvert.SerializeObject(updateTodoDTO)}");
 
                 var existingTodo = await GetTodoAsync(d => d.Id == updateTodoDTO.Id);
@@ -194,17 +122,6 @@ namespace Todos.Service
                 }
 
                 return await _repository.DeleteAsync(existingTodo);
-            }
-            catch (NotFoundException ex)
-            {
-                Log.Error(ex, messageTemplate: "Error deleting Todo - NotFoundException.");
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, messageTemplate: "Error deleting Todo.");
-                throw;
-            }
         }
     }
 }

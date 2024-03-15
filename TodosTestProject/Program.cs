@@ -37,6 +37,8 @@ try
     var app = builder.Build();
 
     // Configure the HTTP request pipeline.
+    app.UseMiddleware<ExceptionsHandlerMiddleware>();
+
     if (app.Environment.IsDevelopment())
     {
         app.UseSwagger();
@@ -46,8 +48,6 @@ try
     app.UseHttpsRedirection();
 
     app.UseAuthorization();
-
-    app.UseMiddleware<ExceptionsHandlerMiddleware>();
 
     app.MapControllers();
 

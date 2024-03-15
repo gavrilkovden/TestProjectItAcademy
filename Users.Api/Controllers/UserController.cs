@@ -50,14 +50,14 @@ namespace Users.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> AddUser(CreateUserDTO createUserDTO)
+        public async Task<ActionResult<User>> AddUser(CreateUserDTO createUserDTO)
         {
             var createdUser = await _userService.CreateUserAsync(createUserDTO);
             return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
         }
 
         [HttpPut]
-        public async Task<ActionResult> UpdateUser(UpdateUserDTO updatedUser)
+        public async Task<ActionResult<UpdateUserDTO>> UpdateUser(UpdateUserDTO updatedUser)
         {
             var existingUser = await _userService.UpdateUserAsync(updatedUser);
 

@@ -28,7 +28,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Common.Repositories\Common.Repositories.csproj" />
-    <ProjectReference Include="..\Todos.Domain\Todos.Domain.csproj" />
     <ProjectReference Include="..\Users.Service\Users.Service.csproj" />
   </ItemGroup>
 
