@@ -12,7 +12,7 @@ namespace Common.Domain
         public string Login { get; set; } = default!;
         public string PasswordHash { get; set; } = default!;
 
-
+         
         public List<Todo> Todos { get; set; }
     }
 }
