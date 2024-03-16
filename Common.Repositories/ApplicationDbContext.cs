@@ -31,8 +31,10 @@ namespace Common.Repositories
 
             modelBuilder.Entity<User>().HasKey(u => u.Id);
             modelBuilder.Entity<User>().Property(u => u.UserName).HasMaxLength(50).IsRequired();
+            modelBuilder.Entity<User>().Property(u => u.Login).HasMaxLength(50).IsRequired();
+            modelBuilder.Entity<User>().HasIndex(u => u.Login).IsUnique();
 
-            modelBuilder.Entity<Todo>()
+           modelBuilder.Entity<Todo>()
                 .HasOne(t => t.Owner)
                 .WithMany(u => u.Todos)
                 .HasForeignKey(t => t.OwnerId);
