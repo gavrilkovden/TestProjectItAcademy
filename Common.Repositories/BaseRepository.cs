@@ -2,13 +2,16 @@
 
 namespace Common.Repositories
 {
-    public class BaseRepository<TEntity> : IRepository<TEntity> where TEntity : class, new()
+    public class BaseRepository<TEntity> 
     {
         private static readonly List<TEntity> _data = [];
 
-        public TEntity[] GetList(int? offset = null, int? limit = null, Expression<Func<TEntity, bool>>? predicate = null,
-            Expression<Func<TEntity, object>>? orderBy = null,
-            bool? descending = null)
+        public async Task<IEnumerable<TEntity>> GetListAsync(
+           int? offset = null,
+           int? limit = null,
+           Expression<Func<TEntity, bool>>? predicate = null,
+           Expression<Func<TEntity, object>>? orderBy = null,
+           bool? descending = null)
         {
             IEnumerable<TEntity> result = _data;
 
@@ -26,21 +29,21 @@ namespace Common.Repositories
 
             result = result.Skip(offset.GetValueOrDefault());
 
-
             if (limit.HasValue)
             {
                 result = result.Take(limit.Value);
             }
 
-            return result.ToArray();
+            return result.ToList();
         }
 
-        public TEntity? SingleOrDefault(Expression<Func<TEntity, bool>>? predicate = null)
+        public async Task<TEntity> SingleOrDefaultAsync(Expression<Func<TEntity, bool>>? predicate = null)
         {
             if (predicate is null)
             {
                 return _data.SingleOrDefault();
             }
+
             return _data.SingleOrDefault(predicate.Compile());
         }
 

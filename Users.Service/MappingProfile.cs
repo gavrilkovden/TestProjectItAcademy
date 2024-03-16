@@ -8,7 +8,8 @@ namespace Users.Api
     {
         public MappingProfile()
         {
-            CreateMap<UserDTO, User>(); 
+            CreateMap<CreateUserDTO, User>();
+            CreateMap<UpdateUserDTO, User>();
         }
     }
 }

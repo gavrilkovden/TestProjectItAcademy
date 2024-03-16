@@ -8,7 +8,8 @@ namespace Todos.Api
     {
         public MappingProfile()
         {
-            CreateMap<TodoDTO, Todo>();
+            CreateMap<UpdateTodoDTO, Todo>();
+            CreateMap<CreateTodoDTO, Todo>();
         }
     }
 }

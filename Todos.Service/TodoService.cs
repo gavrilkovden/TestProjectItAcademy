@@ -1,9 +1,14 @@
 ﻿using AutoMapper;
+using Common.Domain;
+using Common.Domain.Exceptions;
 using Common.Repositories;
+using Newtonsoft.Json;
+using Serilog;
 using System.Linq.Expressions;
 using Todos.Domain;
 using Todos.Service.DTO;
 using Users.Service;
+using Users.Service.DTO;
 
 namespace Todos.Service
 {
@@ -18,61 +23,105 @@ namespace Todos.Service
             _repository = repository;
             _mapper = mapper;
             _userService = userService;
-
-            if (_repository.Count() == 0)
-            {
-                _repository.Add(new Todo { Id = 1, Label = "LabelName1", CreatedDate = DateTime.UtcNow, OwnerId = 2 });
-                _repository.Add(new Todo { Id = 2, Label = "LabelName2", CreatedDate = DateTime.UtcNow, OwnerId = 3 });
-                _repository.Add(new Todo { Id = 3, Label = "LabelName3", CreatedDate = DateTime.UtcNow, OwnerId = 4 });
-                _repository.Add(new Todo { Id = 4, Label = "LabelName4", CreatedDate = DateTime.UtcNow, OwnerId = 5 });
-                _repository.Add(new Todo { Id = 5, Label = "LabelName5", CreatedDate = DateTime.UtcNow, OwnerId = 1 });
-            }
         }
 
-        public IEnumerable<Todo> GetAllTodos(int? offset = null, int? limit = null, int? ownerId = null, string? labelFreeText = null)
+        public async Task<IEnumerable<Todo>> GetAllTodos(int? offset = null, int? limit = null, int? ownerId = null, string? labelFreeText = null)
         {
-            return _repository.GetList(offset, limit, t => (string.IsNullOrWhiteSpace(labelFreeText) ||
-            t.Label.Contains(labelFreeText, StringComparison.InvariantCultureIgnoreCase)) && (ownerId == null || t.OwnerId == ownerId.Value));
+                if (ownerId.HasValue && (await _userService.GetUserAsync(u => u.Id == ownerId.Value)) == null)
+                {
+                    throw new NotFoundException($"User with Id {ownerId} not found.");
+                }
+
+                Log.Information($"Getting Todos. Offset: {offset}, Limit: {limit}, OwnerId: {ownerId}, LabelFreeText: {labelFreeText}");
+
+                var todos = await _repository.GetListAsync(offset, limit, t =>
+                    (string.IsNullOrWhiteSpace(labelFreeText) ||
+                    t.Label.Contains(labelFreeText, StringComparison.InvariantCultureIgnoreCase)) &&
+                    (ownerId == null || t.OwnerId == ownerId.Value));
+
+                if (!todos.Any())
+                {
+                    throw new NotFoundException("No Todos found.");
+                }
+
+                return todos;
         }
 
-        public Todo GetTodo(Expression<Func<Todo, bool>>? predicate = null)
+        public async Task<Todo> GetTodoAsync(Expression<Func<Todo, bool>>? predicate = null)
         {
-            return _repository.SingleOrDefault(predicate);
+                Log.Information($"Getting Todo. Predicate: {predicate?.ToString()}");
+
+                var todo = await _repository.SingleOrDefaultAsync(predicate);
+
+                if (todo == null)
+                {
+                    throw new NotFoundException("Todo not found.");
+                }
+
+                return todo;
         }
 
-        public int GetTodoCount()
+        public async Task<int> GetTodoCountAsync()
         {
-            return _repository.Count();
+                Log.Information($"Getting Todo Count.");
+
+                var count = await _repository.CountAsync();
+
+                if (count == 0)
+                {
+                    throw new NotFoundException("No Todos found.");
+                }
+
+                return count;
         }
 
-        public Todo GreateTodo(TodoDTO todoDTO)
+        public async Task<Todo> GreateTodoAsync(CreateTodoDTO todoDTO)
         {
-            var user = _userService.GetUser(u => u.Id == todoDTO.OwnerId);
-            if (user == null)
-            {
-                throw new Exception("User with specified OwnerId not found.");
-            }
+                Log.Information($"Creating Todo: {JsonConvert.SerializeObject(todoDTO)}");
 
-            var todo = _mapper.Map<Todo>(todoDTO);
-            return _repository.Add(todo);
+                var user = await _userService.GetUserAsync(u => u.Id == todoDTO.OwnerId);
+                if (user == null)
+                {
+                    throw new NotFoundException("Todo with specified OwnerId not found.");
+                }
+
+                var todo = _mapper.Map<Todo>(todoDTO);
+                return await _repository.AddAsync(todo);
         }
 
-        public Todo UpdateTodo(TodoDTO todoDTO)
+        public async Task<Todo> UpdateTodoAsync(UpdateTodoDTO updateTodoDTO)
         {
-            var user = _userService.GetUser(u => u.Id == todoDTO.OwnerId);
-            if (user == null)
-            {
-                throw new Exception("User with specified OwnerId not found.");
-            }
+                Log.Information($"Updating Todo: {JsonConvert.SerializeObject(updateTodoDTO)}");
 
-            var todo = _mapper.Map<Todo>(todoDTO);
-            return _repository.Update(todo);
+                var user = await _userService.GetUserAsync(u => u.Id == updateTodoDTO.OwnerId);
+                if (user == null)
+                {
+                    throw new NotFoundException("Todo with specified OwnerId not found.");
+                }
+
+                var existingTodo = await GetTodoAsync(d => d.Id == updateTodoDTO.Id);
+
+                if (existingTodo == null)
+                {
+                    throw new NotFoundException("Todo with specified Id not found.");
+                }
+                _mapper.Map(updateTodoDTO, existingTodo);
+
+                return await _repository.UpdateAsync(existingTodo);
         }
 
-        public bool DeleteTodo(TodoDTO todoDTO)
+        public async Task<bool> DeleteTodoAsync(UpdateTodoDTO updateTodoDTO)
         {
-            var todo = _mapper.Map<Todo>(todoDTO);
-            return _repository.Delete(todo);
+                Log.Information($"Deleting Todo: {JsonConvert.SerializeObject(updateTodoDTO)}");
+
+                var existingTodo = await GetTodoAsync(d => d.Id == updateTodoDTO.Id);
+
+                if (existingTodo == null)
+                {
+                    throw new NotFoundException("Todo with specified Id not found.");
+                }
+
+                return await _repository.DeleteAsync(existingTodo);
         }
     }
 }

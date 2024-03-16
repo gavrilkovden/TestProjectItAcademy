@@ -18,9 +18,9 @@ namespace TodosTestProject.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Todo> GetTodoById(int id)
+        public async Task<ActionResult<Todo>> GetTodoById(int id)
         {
-            var todo = _todoService.GetTodo(u => u.Id == id);
+            var todo = await _todoService.GetTodoAsync(u => u.Id == id);
 
             if (todo == null)
             {
@@ -31,34 +31,38 @@ namespace TodosTestProject.Controllers
         }
 
         [HttpGet("count")]
-        public ActionResult<int> GetCount()
+        public async Task<ActionResult<int>> GetCount()
         {
-            var count = _todoService.GetTodoCount();
+            var count = await _todoService.GetTodoCountAsync();
 
             return Ok(count);
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Todo>> GetAllTodos(int? offset = null, int? limit = null,
- int? ownerId = null, string? labelFreeText = null)
+        public async Task<ActionResult<IEnumerable<Todo>>> GetAllTodos(int? offset = null, int? limit = null, int? ownerId = null, string? labelFreeText = null)
         {
-            var todos = _todoService.GetAllTodos(offset, limit, ownerId, labelFreeText);
-            var totalCount = todos.Count();
+            var todos = await _todoService.GetAllTodos(offset, limit, ownerId, labelFreeText);
+            var totalCount = await _todoService.GetTodoCountAsync();
             Response.Headers.Add("x-Total-Count", totalCount.ToString());
             return Ok(todos);
         }
 
         [HttpPost]
-        public ActionResult AddTodo(TodoDTO todoDTO)
+        public async Task<ActionResult> AddTodo(CreateTodoDTO todoDTO)
         {
-            _todoService.GreateTodo(todoDTO);
-            return CreatedAtAction(nameof(GetTodoById), new { id = todoDTO.Id }, todoDTO);
+            var createdTodo = await _todoService.GreateTodoAsync(todoDTO);
+
+            if (createdTodo == null)
+            {
+                return BadRequest();
+            }
+            return CreatedAtAction(nameof(GetTodoById), new { id = createdTodo.Id }, createdTodo);
         }
 
         [HttpPut("{id}")]
-        public ActionResult UpdateTodo(TodoDTO updatedTodo)
+        public async Task<ActionResult<UpdateTodoDTO>> UpdateTodo(UpdateTodoDTO updatedTodo)
         {
-            var existingTodo = _todoService.UpdateTodo(updatedTodo);
+            var existingTodo = await _todoService.UpdateTodoAsync(updatedTodo);
 
             if (existingTodo == null)
             {
@@ -69,14 +73,10 @@ namespace TodosTestProject.Controllers
         }
 
         [HttpDelete("{id}")]
-        public ActionResult DeleteTodo(TodoDTO todoDTO)
+        public async Task<ActionResult> DeleteTodo(int id)
         {
-            var existingTodo = _todoService.DeleteTodo(todoDTO);
-
-            if (existingTodo == null)
-            {
-                return NotFound();
-            }
+            var todoDTO = new UpdateTodoDTO { Id = id };
+            await _todoService.DeleteTodoAsync(todoDTO);
             return Ok("Todo deleted successfully.");
         }
     }
