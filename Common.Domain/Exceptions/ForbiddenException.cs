@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace Common.Domain.Exceptions
 {
-    public class NotFoundException : Exception
+    public class ForbiddenException : Exception
     {
-        public NotFoundException(string message, string filter = null)
-    : base($"{message} Filter: {filter}") { }
+        public ForbiddenException(string message) : base(message) { }
     }
 }

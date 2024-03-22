@@ -1,32 +1,31 @@
 ﻿using Common.Domain;
 using Common.Repositories;
 using System.Linq.Expressions;
-using System;
 using AutoMapper;
 using Users.Service.DTO;
-using System.Xml.Linq;
-using Users.Service.Validators;
-using FluentValidation;
-using System.ComponentModel.DataAnnotations;
 using Serilog;
 using Newtonsoft.Json;
 using Common.Domain.Exceptions;
+using Users.Service.Utils;
 
 namespace Users.Service
 
 {
     public class UserService : IUserService
     {
-        private readonly IRepository<User> _repository;
+        private readonly IRepository<ApplicationUser> _repository;
         private readonly IMapper _mapper;
-        public UserService(IRepository<User> repository, IMapper mapper)
+        private readonly IRepository<ApplicationUserRole> _userRoles;
+
+        public UserService(IRepository<ApplicationUser> repository, IRepository<ApplicationUserRole> userRoles, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;
+            _userRoles = userRoles;
         }
 
 
-        public async Task<IEnumerable<User>> GetAllUsersAsync()
+        public async Task<IEnumerable<GetUserDTO>> GetAllUsersAsync()
         {
             Log.Information("Getting all users.");
 
@@ -34,25 +33,25 @@ namespace Users.Service
 
             if (!users.Any())
             {
-                throw new NotFoundException("No Users found.");
+                throw new NotFoundException("No ApplicationUsers found.");
             }
 
-            return users;
+            return _mapper.Map<IEnumerable<GetUserDTO>>(users);
         }
 
 
-        public async Task<User> GetUserAsync(Expression<Func<User, bool>>? predicate = null)
+        public async Task<GetUserDTO> GetUserAsync(Expression<Func<ApplicationUser, bool>>? predicate = null, CancellationToken cancellationToken = default)
         {
             Log.Information($"Getting user with predicate: {predicate?.ToString() ?? "null"}.");
 
-            var user = await _repository.SingleOrDefaultAsync(predicate);
+            var user = await _repository.SingleOrDefaultAsync(predicate, cancellationToken);
 
             if (user == null)
             {
                 throw new NotFoundException("User not found.");
             }
 
-            return user;
+            return _mapper.Map<GetUserDTO>(user);
         }
 
         public async Task<int> GetUserCountAsync()
@@ -63,13 +62,13 @@ namespace Users.Service
 
             if (count == 0)
             {
-                throw new NotFoundException("No Users found.");
+                throw new NotFoundException("No ApplicationUsers found.");
             }
 
             return count;
         }
 
-        public async Task<User> CreateUserAsync(CreateUserDTO createUserDTO)
+        public async Task<GetUserDTO> CreateUserAsync(CreateUserDTO createUserDTO, CancellationToken cancellationToken = default)
         {
             Log.Information($"Creating user: {JsonConvert.SerializeObject(createUserDTO)}");
 
@@ -77,32 +76,69 @@ namespace Users.Service
             {
                 throw new BadRequestException("UserName is required.");
             }
+            if (await _repository.SingleOrDefaultAsync(u => u.Login == createUserDTO.Login.Trim(), cancellationToken) != null)
+            {
+                throw new BadRequestException("User login exists");
+            }
 
-            var user = _mapper.Map<User>(createUserDTO);
-            return await _repository.AddAsync(user);
+            var userRole = await _userRoles.SingleOrDefaultAsync(r => r.Name == "Client", cancellationToken);
+
+            var entity = new ApplicationUser()
+            {
+                Login = createUserDTO.Login,
+                PasswordHash = PasswordHasher.HashPassword(createUserDTO.Password),
+                UserName = createUserDTO.UserName,
+                Roles = new[] { new ApplicationUserApplicationRole() { ApplicationUserRoleId = userRole.Id } }
+                };
+
+
+            var createdUser = await _repository.AddAsync(entity);
+            return _mapper.Map<GetUserDTO>(createdUser);
         }
 
-        public async Task<User> UpdateUserAsync(UpdateUserDTO updateUserDTO)
+      
+        public async Task<GetUserDTO> UpdateUserAsync(UpdateUserDTO updateUserDTO)
         {
             Log.Information($"Updating user: {JsonConvert.SerializeObject(updateUserDTO)}");
 
-            var existingUser = await GetUserAsync(d => d.Id == updateUserDTO.Id);
+            var existingUser = await _repository.SingleOrDefaultAsync(d => d.Id == updateUserDTO.Id);
 
             if (existingUser == null)
             {
                 throw new NotFoundException("User with specified Id not found.");
             }
 
-            _mapper.Map(updateUserDTO, existingUser);
+            if (existingUser.Roles.Any(role => role.ApplicationUserRole.Name == "Client"))
+            {
+                throw new ForbiddenException("Client users are not allowed to update their profiles.");
+                
+            }
 
-            return await _repository.UpdateAsync(existingUser);
+            await _repository.UpdateAsync(_mapper.Map(updateUserDTO, existingUser));
+
+            return _mapper.Map<GetUserDTO>(existingUser);
+        }
+
+        public async Task<bool> ChangePasswordAsync(int userId, string newPassword)
+        {
+            var user = await _repository.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+            {
+                throw new NotFoundException("User not found.");
+            }
+
+            user.PasswordHash = PasswordHasher.HashPassword(newPassword);
+
+            await _repository.UpdateAsync(user);
+
+            return true;
         }
 
         public async Task<bool> DeleteUserAsync(UpdateUserDTO updateUserDTO)
         {
             Log.Information($"Deleting user: {JsonConvert.SerializeObject(updateUserDTO)}");
 
-            var existingUser = await GetUserAsync(d => d.Id == updateUserDTO.Id);
+            var existingUser = await _repository.SingleOrDefaultAsync(d => d.Id == updateUserDTO.Id);
 
             if (existingUser == null)
             {

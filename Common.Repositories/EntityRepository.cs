@@ -61,10 +61,10 @@ namespace Common.Repositories
             return await set.CountAsync();
         }
 
-        public async Task<TEntity> AddAsync(TEntity entity)
+        public async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default)
         {
             var set = _applicationDbContext.Set<TEntity>();
-            await set.AddAsync(entity);
+            await set.AddAsync(entity, cancellationToken);
             await _applicationDbContext.SaveChangesAsync();
             return entity;
         }
@@ -82,6 +82,18 @@ namespace Common.Repositories
             var set = _applicationDbContext.Set<TEntity>();
             set.Remove(entity);
             return await _applicationDbContext.SaveChangesAsync() > 0;
+        }
+
+        public async Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken cancellationToken = default)
+        {
+            var set = _applicationDbContext.Set<TEntity>();
+            return predicate == null ? await set.FirstOrDefaultAsync(cancellationToken) : await set.FirstOrDefaultAsync(predicate, cancellationToken);
+        }
+
+        public async Task<TEntity> SingleAsync(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken cancellationToken = default)
+        {
+            var set = _applicationDbContext.Set<TEntity>();
+            return predicate == null ? await set.SingleAsync(cancellationToken) : await set.SingleAsync(predicate, cancellationToken);
         }
     }
 

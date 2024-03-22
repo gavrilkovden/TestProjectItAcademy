@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Common.Repositories.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240313100817_InitialCreate")]
+    [Migration("20240320222506_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -25,13 +25,22 @@ namespace Common.Repositories.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Common.Domain.User", b =>
+            modelBuilder.Entity("Common.Domain.ApplicationUser", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Login")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserName")
                         .IsRequired()
@@ -40,7 +49,43 @@ namespace Common.Repositories.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.HasIndex("Login")
+                        .IsUnique();
+
+                    b.ToTable("ApplicationUsers");
+                });
+
+            modelBuilder.Entity("Common.Domain.ApplicationUserApplicationRole", b =>
+                {
+                    b.Property<int>("ApplicationUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ApplicationUserRoleId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ApplicationUserId", "ApplicationUserRoleId");
+
+                    b.HasIndex("ApplicationUserRoleId");
+
+                    b.ToTable("ApplicationUserApplicationRoles");
+                });
+
+            modelBuilder.Entity("Common.Domain.ApplicationUserRole", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ApplicationUserRoles");
                 });
 
             modelBuilder.Entity("Todos.Domain.Todo", b =>
@@ -79,9 +124,28 @@ namespace Common.Repositories.Migrations
                     b.ToTable("Todos");
                 });
 
+            modelBuilder.Entity("Common.Domain.ApplicationUserApplicationRole", b =>
+                {
+                    b.HasOne("Common.Domain.ApplicationUser", "ApplicationUser")
+                        .WithMany("Roles")
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Common.Domain.ApplicationUserRole", "ApplicationUserRole")
+                        .WithMany("Users")
+                        .HasForeignKey("ApplicationUserRoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("ApplicationUserRole");
+                });
+
             modelBuilder.Entity("Todos.Domain.Todo", b =>
                 {
-                    b.HasOne("Common.Domain.User", "Owner")
+                    b.HasOne("Common.Domain.ApplicationUser", "Owner")
                         .WithMany("Todos")
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -90,9 +154,16 @@ namespace Common.Repositories.Migrations
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("Common.Domain.User", b =>
+            modelBuilder.Entity("Common.Domain.ApplicationUser", b =>
                 {
+                    b.Navigation("Roles");
+
                     b.Navigation("Todos");
+                });
+
+            modelBuilder.Entity("Common.Domain.ApplicationUserRole", b =>
+                {
+                    b.Navigation("Users");
                 });
 #pragma warning restore 612, 618
         }

@@ -8,8 +8,11 @@ namespace Users.Api
     {
         public MappingProfile()
         {
-            CreateMap<CreateUserDTO, User>();
-            CreateMap<UpdateUserDTO, User>();
+            CreateMap<GetUserDTO, ApplicationUser>();
+            CreateMap<CreateUserDTO, ApplicationUser>();
+            CreateMap<UpdateUserDTO, ApplicationUser>();
+            CreateMap<ApplicationUser, GetUserDTO>();
+            CreateMap<ChangePasswordDTO, ApplicationUser>();
         }
     }
 }

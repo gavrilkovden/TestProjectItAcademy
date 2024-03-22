@@ -4,6 +4,7 @@ using Common.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Common.Repositories.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240321125835_AddRefreshTokensNewId")]
+    partial class AddRefreshTokensNewId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -50,15 +53,6 @@ namespace Common.Repositories.Migrations
                         .IsUnique();
 
                     b.ToTable("ApplicationUsers");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Login = "admin",
-                            PasswordHash = "Yx7jh/W92kRLgdCk9026HJsBIp13DmXV6XZ5lpXJF3RQs0DxA/r31TtLQVkcVy8E4EfIP15zRcocL6YAXt3h5Q==BB3CA5B46C5E510AF1A7ADC089A3211F85926564A0D6B709FADF5C44A0BA8C3988EE3AC041C8B4E7071037C3BB2A59B16A6A3A41E9E2A4904BE52A48A02C8884",
-                            UserName = "admin"
-                        });
                 });
 
             modelBuilder.Entity("Common.Domain.ApplicationUserApplicationRole", b =>
@@ -92,18 +86,6 @@ namespace Common.Repositories.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ApplicationUserRoles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Admin"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "User"
-                        });
                 });
 
             modelBuilder.Entity("Common.Domain.RefreshToken", b =>

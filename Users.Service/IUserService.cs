@@ -12,16 +12,18 @@ namespace Users.Service
 {
     public interface IUserService
     {
-        public Task<IEnumerable<User>> GetAllUsersAsync();
+        public Task<IEnumerable<GetUserDTO>> GetAllUsersAsync();
 
-        public Task<User> GetUserAsync(Expression<Func<User, bool>>? predicate = null);
+        public Task<GetUserDTO> GetUserAsync(Expression<Func<ApplicationUser, bool>>? predicate = null, CancellationToken cancellationToken = default);
 
         public Task<int> GetUserCountAsync();
 
-        public Task<User> CreateUserAsync(CreateUserDTO userDTO);
+        public Task<GetUserDTO> CreateUserAsync(CreateUserDTO userDTO, CancellationToken cancellationToken = default);
 
-        public Task<User> UpdateUserAsync(UpdateUserDTO userDTO);
+        public Task<GetUserDTO> UpdateUserAsync(UpdateUserDTO userDTO);
 
         public Task<bool> DeleteUserAsync(UpdateUserDTO updateUserDTO);
+
+        public  Task<bool> ChangePasswordAsync(int userId, string newPassword);
     }
 }
