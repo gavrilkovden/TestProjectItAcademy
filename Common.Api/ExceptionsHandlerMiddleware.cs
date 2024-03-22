@@ -38,6 +38,11 @@ namespace Common.Api
                         statusCode = HttpStatusCode.BadRequest;
                         result = JsonSerializer.Serialize(badRequestException.Message);
                         break;
+                    case ForbiddenException forbiddenException:
+                        statusCode = HttpStatusCode.Forbidden;
+                        result = JsonSerializer.Serialize(forbiddenException.Message);
+                        break;
+
                 }
 
                 if (string.IsNullOrWhiteSpace(result))

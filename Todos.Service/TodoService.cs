@@ -2,9 +2,11 @@
 using Common.Domain;
 using Common.Domain.Exceptions;
 using Common.Repositories;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Serilog;
 using System.Linq.Expressions;
+using System.Security.Claims;
 using Todos.Domain;
 using Todos.Service.DTO;
 using Users.Service;
@@ -93,7 +95,7 @@ namespace Todos.Service
         {
                 Log.Information($"Updating Todo: {JsonConvert.SerializeObject(updateTodoDTO)}");
 
-                var user = await _userService.GetUserAsync(u => u.Id == updateTodoDTO.OwnerId);
+            var user = await _userService.GetUserAsync(u => u.Id == updateTodoDTO.OwnerId);
                 if (user == null)
                 {
                     throw new NotFoundException("Todo with specified OwnerId not found.");
@@ -120,6 +122,7 @@ namespace Todos.Service
                 {
                     throw new NotFoundException("Todo with specified Id not found.");
                 }
+
 
                 return await _repository.DeleteAsync(existingTodo);
         }

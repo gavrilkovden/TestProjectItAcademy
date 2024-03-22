@@ -13,6 +13,6 @@ namespace Todos.Domain
         public int OwnerId { get; set; }
        
         [JsonIgnore]
-        public User Owner { get; set; }
+        public ApplicationUser Owner { get; set; }
     }
 }

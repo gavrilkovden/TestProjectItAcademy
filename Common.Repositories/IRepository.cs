@@ -18,9 +18,13 @@ namespace Common.Repositories
 
         Task<TEntity?> SingleOrDefaultAsync(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken cancellationToken = default);
 
+        Task<TEntity?> SingleAsync(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken cancellationToken = default);
+
+        Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken cancellationToken = default);
+
         Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null);
 
-        Task<TEntity> AddAsync(TEntity entity);
+        Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default);
 
         Task<TEntity> UpdateAsync(TEntity entity);
 
