@@ -24,7 +24,12 @@ namespace TodosTestProject.Controllers
         public async Task<ActionResult<Todo>> GetTodoById(int id)
         {
             var currentUserIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (currentUserIdClaim == null) { return BadRequest("Invalid user identifier."); }
+
+            if (currentUserIdClaim == null) 
+            { 
+                return BadRequest("Invalid user identifier."); 
+            }
+
             var todo = await _todoService.GetTodoAsync(u => u.Id == id);
 
             if (todo == null)
@@ -93,7 +98,11 @@ namespace TodosTestProject.Controllers
         public async Task<ActionResult<UpdateTodoDTO>> UpdateTodo(UpdateTodoDTO updatedTodo)
         {
             var currentUserIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (currentUserIdClaim == null) { return BadRequest("Invalid user identifier."); }
+            if (currentUserIdClaim == null) 
+            
+            { 
+                return BadRequest("Invalid user identifier."); 
+            }
 
             if (updatedTodo.OwnerId != int.Parse(currentUserIdClaim) && !User.IsInRole("Admin"))
             {
@@ -113,7 +122,11 @@ namespace TodosTestProject.Controllers
         public async Task<ActionResult> DeleteTodo(int id)
         {
             var currentUserIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (currentUserIdClaim == null) { return BadRequest("Invalid user identifier."); }
+            if (currentUserIdClaim == null) 
+            
+            { 
+                return BadRequest("Invalid user identifier."); 
+            }
 
             var existingTodo = await _todoService.GetTodoAsync(u => u.Id == id);
 
