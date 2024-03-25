@@ -4,7 +4,7 @@ namespace Common.Repositories
 {
     public class BaseRepository<TEntity> 
     {
-        private static readonly List<TEntity> _data = [];
+        private static readonly List<TEntity> _data = new List<TEntity>();
 
         public async Task<IEnumerable<TEntity>> GetListAsync(
            int? offset = null,

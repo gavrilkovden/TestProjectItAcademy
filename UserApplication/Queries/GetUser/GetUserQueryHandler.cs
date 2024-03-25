@@ -37,7 +37,7 @@ namespace UserApplication.Queries.GetUser
             {
                 throw new NotFoundException("User not found.");
             }
-            _memoryCache.Cache.Clear();
+    //        _memoryCache.Cache.Clear();
             return _mapper.Map<GetUserDTO>(user);
         }
     }

@@ -31,7 +31,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Common.Api\Common.Api.csproj" />
     <ProjectReference Include="..\Todos.Service\Todos.Service.csproj" />
-    <ProjectReference Include="..\Users.Service\Users.Service.csproj" />
   </ItemGroup>
 
 </Project>

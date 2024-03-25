@@ -40,7 +40,7 @@ namespace UserApplication.Commands.UpdateUser
             }
 
             await _users.UpdateAsync(_mapper.Map(request, existingUser));
-            _memoryCache.Cache.Clear();
+          //  _memoryCache.Cache.Clear();
             return _mapper.Map<GetUserDTO>(existingUser);
         }
     }

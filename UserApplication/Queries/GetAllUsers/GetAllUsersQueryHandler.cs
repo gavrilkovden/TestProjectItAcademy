@@ -36,7 +36,7 @@ namespace UserApplication.Queries.GetAllUsers
             {
                 throw new NotFoundException("No ApplicationUsers found.");
             }
-            _memoryCache.Cache.Clear();
+          //  _memoryCache.Cache.Clear();
             return _mapper.Map<IReadOnlyCollection<GetUserDTO>>(users);
 
         }
