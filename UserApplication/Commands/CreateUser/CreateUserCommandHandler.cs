@@ -47,7 +47,7 @@ namespace UserApplication.Commands.CreateUser
 
             await _users.AddAsync(user, cancellationToken);
 
-            _memoryCache.Cache.Clear();
+       //     _memoryCache.Cache.Clear();
 
             return _mapper.Map<GetUserDTO>(user);
         }

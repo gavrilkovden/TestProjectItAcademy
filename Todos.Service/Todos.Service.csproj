@@ -28,7 +28,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Common.Repositories\Common.Repositories.csproj" />
     <ProjectReference Include="..\Users.Service\Users.Service.csproj" />
   </ItemGroup>
 

@@ -33,7 +33,7 @@ namespace UserApplication.Queries.GetUserCount
             {
                 throw new NotFoundException("No ApplicationUsers found.");
             }
-            _memoryCache.Cache.Clear();
+        //    _memoryCache.Cache.Clear();
             return count;
         }
     }
