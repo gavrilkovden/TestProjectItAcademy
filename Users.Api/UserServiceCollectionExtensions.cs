@@ -1,10 +1,9 @@
 ﻿using Common.Domain;
 using Common.Repositories;
 using FluentValidation;
+using MediatR;
 using System.Reflection;
 using Users.Service;
-using Users.Service.DTO;
-using Users.Service.Validators;
 
 namespace Users.Api
 {
@@ -20,6 +19,7 @@ namespace Users.Api
             services.AddTransient<IAuthService, AuthService>();
             services.AddAutoMapper(typeof(MappingProfile));
             services.AddValidatorsFromAssemblies(new[] { Assembly.GetExecutingAssembly(), typeof(UserService).Assembly }, includeInternalTypes: true);
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
             return services;
         }
