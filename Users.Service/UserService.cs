@@ -2,11 +2,10 @@
 using Common.Repositories;
 using System.Linq.Expressions;
 using AutoMapper;
-using Users.Service.DTO;
 using Serilog;
 using Newtonsoft.Json;
-using Common.Domain.Exceptions;
 using Users.Service.Utils;
+using Common.Application.Exceptions;
 
 namespace Users.Service
 

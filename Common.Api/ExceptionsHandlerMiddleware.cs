@@ -1,9 +1,8 @@
-﻿using System.Net.Http;
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
-using Common.Domain.Exceptions;
 using Serilog;
+using Common.Application.Exceptions;
 
 namespace Common.Api
 {
