@@ -9,7 +9,7 @@ using Users.Service.DTO;
 
 namespace UserApplication.Queries.GetAllUsers
 {
-    public class GetAllUsersQuery : IRequest<GetUserDTO>
+    public class GetAllUsersQuery : IRequest<IReadOnlyCollection<GetUserDTO>>
     {
     }
 }

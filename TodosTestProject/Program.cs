@@ -1,16 +1,10 @@
 using Common.Api;
-using Common.Domain;
-using Common.Repositories;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Common.Application;
 using Serilog;
 using Serilog.Events;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using Todos.Api;
-using Todos.Domain;
-using Todos.Service;
 using Users.Api;
-using Users.Service;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Information)

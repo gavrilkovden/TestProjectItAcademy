@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Users.Service.DTO
+namespace Auth.Application.DTO
 {
     public class AuthDTO
     {

@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Common.Repositories.Migrations
+namespace Common.Application.Migrations
 {
     /// <inheritdoc />
     public partial class AddRefreshTokensNewId : Migration

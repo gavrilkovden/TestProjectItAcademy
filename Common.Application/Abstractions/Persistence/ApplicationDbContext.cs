@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using Todos.Domain;
 using Users.Service.Utils;
 
-namespace Common.Repositories
+namespace Common.Application
 {
     public class ApplicationDbContext : DbContext
     {

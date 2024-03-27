@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Common.Application.Exceptions;
 using Common.Domain;
-using Common.Repositories;
+using Common.Application;
 using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 using System;

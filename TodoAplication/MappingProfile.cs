@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
+using TodoAplication.Commands.CreateTodo;
+using TodoAplication.DTO;
 using Todos.Domain;
-using Todos.Service.DTO;
 
 namespace Todos.Api
 {
@@ -10,6 +11,7 @@ namespace Todos.Api
         {
             CreateMap<UpdateTodoDTO, Todo>();
             CreateMap<CreateTodoDTO, Todo>();
+            CreateMap<CreateTodoCommand, Todo>();
         }
     }
 }

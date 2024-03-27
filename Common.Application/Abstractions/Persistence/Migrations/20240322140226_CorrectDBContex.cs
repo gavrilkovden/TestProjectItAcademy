@@ -4,7 +4,7 @@
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace Common.Repositories.Migrations
+namespace Common.Application.Migrations
 {
     /// <inheritdoc />
     public partial class CorrectDBContex : Migration

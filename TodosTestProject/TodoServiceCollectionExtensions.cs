@@ -1,10 +1,10 @@
-﻿using Common.Domain;
-using Common.Repositories;
+﻿using Common.Application;
+using Common.Domain;
 using FluentValidation;
 using System.Reflection;
+using TodoAplication.Commands.CreateTodo;
 using Todos.Domain;
-using Todos.Service;
-using Users.Service;
+using UserApplication.Commands.CreateUser;
 
 namespace Todos.Api
 {
@@ -12,10 +12,15 @@ namespace Todos.Api
     {
         public static IServiceCollection AddTodoServices(this IServiceCollection services)
         {
-            services.AddTransient<ITodoService, TodoService>();
+        //    services.AddTransient<ITodoService, TodoService>();
             services.AddTransient<IRepository<Todo>, EntityRepository<Todo>>();
             services.AddAutoMapper(typeof(MappingProfile));
-            services.AddValidatorsFromAssemblies(new[] { Assembly.GetExecutingAssembly(), typeof(TodoService).Assembly }, includeInternalTypes: true);
+            services.AddTransient<IRepository<ApplicationUserApplicationRole>, EntityRepository<ApplicationUserApplicationRole>>();
+            services.AddTransient<IRepository<ApplicationUserRole>, EntityRepository<ApplicationUserRole>>();
+            services.AddTransient<IRepository<RefreshToken>, EntityRepository<RefreshToken>>();
+            services.AddValidatorsFromAssemblies(new[] { Assembly.GetExecutingAssembly(), typeof(TodoServiceCollectionExtensions).Assembly }, includeInternalTypes: true);
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateTodoCommand).Assembly));
+            services.AddMemoryCache();
             return services;
         }
     }

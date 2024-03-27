@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Todos.Service.DTO
+namespace TodoAplication.DTO
 {
-    public class UpdateTodoDTO
+    public class CreateTodoDTO
     {
-        public int Id { get; set; }
         public string Label { get; set; }
         public bool IsDone { get; set; }
         public DateTime CreatedDate { get; set; }

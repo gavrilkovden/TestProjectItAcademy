@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Common.Application.Exceptions;
 using Common.Domain;
-using Common.Repositories;
+using Common.Application;
 using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 using Serilog;
@@ -29,9 +29,9 @@ namespace UserApplication.Queries.GetUser
 
         public async Task<GetUserDTO> Handle(GetUserQuery query, CancellationToken cancellationToken)
         {
-            Log.Information($"Getting user with predicate: {query.Predicate?.ToString() ?? "null"}.");
+            Log.Information($"Getting user with predicate: {query.UserId.ToString() ?? "null"}.");
 
-            var user = await _repository.SingleOrDefaultAsync(query.Predicate, cancellationToken);
+            var user = await _repository.SingleOrDefaultAsync(u => u.Id == query.UserId, cancellationToken);
 
             if (user == null)
             {

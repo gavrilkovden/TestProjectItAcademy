@@ -1,6 +1,6 @@
 ﻿using Common.Domain;
 using Common.Domain.Exceptions;
-using Common.Repositories;
+using Common.Application;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;

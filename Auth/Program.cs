@@ -5,6 +5,9 @@ using Microsoft.OpenApi.Models;
 using Serilog.Events;
 using Serilog;
 using System.Text;
+using Auth.Api;
+using Common.Application;
+using Microsoft.Extensions.Configuration;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
@@ -18,6 +21,9 @@ try
     // Add services to the container.
 
     builder.Services.AddControllers();
+    var configuration = builder.Configuration;
+    builder.Services.AddTodoDB(configuration);
+    builder.Services.AddAuthServices();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(options =>
     {

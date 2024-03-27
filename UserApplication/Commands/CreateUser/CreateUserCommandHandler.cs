@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Common.Application.Exceptions;
 using Common.Domain;
-using Common.Repositories;
+using Common.Application;
 using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 using Users.Service.DTO;
@@ -12,18 +12,15 @@ namespace UserApplication.Commands.CreateUser
     public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, GetUserDTO>
     {
         private readonly IRepository<ApplicationUser> _users;
-        private readonly IRepository<ApplicationUserRole> _roles;
         private readonly IMapper _mapper;
         private readonly IMemoryCache _memoryCache;
 
         public CreateUserCommandHandler(
             IRepository<ApplicationUser> users,
-            IRepository<ApplicationUserRole> roles,
             IMapper mapper,
             IMemoryCache memoryCache)
         {
             _users = users;
-            _roles = roles;
             _mapper = mapper;
             _memoryCache = memoryCache;
         }

@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace Common.Repositories
+namespace Common.Application
 {
     public class BaseRepository<TEntity> 
     {

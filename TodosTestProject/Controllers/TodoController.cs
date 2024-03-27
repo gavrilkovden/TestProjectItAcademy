@@ -1,36 +1,47 @@
+using Common.Domain;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq.Expressions;
 using System.Security.Claims;
+using TodoAplication.Commands.CreateTodo;
+using TodoAplication.Commands.DeleteTodo;
+using TodoAplication.Commands.UpdateTodo;
+using TodoAplication.DTO;
+using TodoAplication.Queries.GetAllTodos;
+using TodoAplication.Queries.GetTodo;
+using TodoAplication.Queries.GetTodoCount;
 using Todos.Domain;
-using Todos.Service;
-using Todos.Service.DTO;
+using UserApplication.Commands.CreateUser;
+using UserApplication.Commands.DeleteUser;
+using UserApplication.Queries.GetUser;
 
 namespace TodosTestProject.Controllers
 {
-     [Authorize]
+  //  [Authorize]
     [ApiController]
     [Route("api/todos")]
     public class TodoController : ControllerBase
     {
-        private readonly ITodoService _todoService;
+        //private readonly ITodoService _todoService;
 
-        public TodoController(ITodoService todoService)
-        {
-            _todoService = todoService;
-        }
+        //public TodoController(ITodoService todoService)
+        //{
+        //    _todoService = todoService;
+        //}
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Todo>> GetTodoById(int id)
+        [HttpGet("id")]
+        public async Task<ActionResult<Todo>> GetTodoById([FromQuery] GetTodoQuery getTodoQuery,
+            IMediator mediator,
+            CancellationToken cancellationToken = default)
         {
             var currentUserIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (currentUserIdClaim == null) 
-            { 
-                return BadRequest("Invalid user identifier."); 
+            if (currentUserIdClaim == null)
+            {
+                return BadRequest("Invalid user identifier.");
             }
 
-            var todo = await _todoService.GetTodoAsync(u => u.Id == id);
+            var todo = await mediator.Send(getTodoQuery, cancellationToken);
 
             if (todo == null)
             {
@@ -46,15 +57,20 @@ namespace TodosTestProject.Controllers
         }
 
         [HttpGet("count")]
-        public async Task<ActionResult<int>> GetCount()
+        public async Task<ActionResult<int>> GetCount([FromQuery] GetTodoCountQuery getTodoCountQuery,
+            IMediator mediator,
+            CancellationToken cancellationToken = default)
         {
-            var count = await _todoService.GetTodoCountAsync();
+            var count = await mediator.Send(getTodoCountQuery, cancellationToken);
 
             return Ok(count);
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Todo>>> GetAllTodos(int? offset = null, int? limit = null, int? ownerId = null, string? labelFreeText = null)
+        public async Task<ActionResult<IEnumerable<Todo>>> GetAllTodos([FromQuery] GetAllTodosQuery getAllTodosQuery,
+            [FromQuery] GetTodoCountQuery getTodoCountQuery,
+            IMediator mediator,
+            CancellationToken cancellationToken = default)
         {
             int currentUserId;
             var currentUserIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -67,25 +83,19 @@ namespace TodosTestProject.Controllers
             IEnumerable<Todo> todos;
             int totalCount;
 
-            if (User.IsInRole("Admin"))
-            {
-                todos = await _todoService.GetAllTodos(offset, limit, ownerId, labelFreeText);
-                totalCount = await _todoService.GetTodoCountAsync();
-            }
-            else
-            {
-                todos = await _todoService.GetAllTodos(offset, limit, currentUserId, labelFreeText);
-                totalCount = await _todoService.GetTodoCountAsync();
-            }
-
+            todos = await mediator.Send(User.IsInRole("Admin") ? getAllTodosQuery : new GetAllTodosQuery { OwnerId = currentUserId }, cancellationToken);
+            totalCount = await mediator.Send(getTodoCountQuery, cancellationToken);
             Response.Headers.Add("x-Total-Count", totalCount.ToString());
+
             return Ok(todos);
         }
 
         [HttpPost]
-        public async Task<ActionResult> AddTodo(CreateTodoDTO todoDTO)
+        public async Task<ActionResult> AddTodo(CreateTodoCommand createTodoCommand,
+            IMediator mediator,
+            CancellationToken cancellationToken = default)
         {
-            var createdTodo = await _todoService.GreateTodoAsync(todoDTO);
+            var createdTodo = await mediator.Send(createTodoCommand, cancellationToken);
 
             if (createdTodo == null)
             {
@@ -95,48 +105,49 @@ namespace TodosTestProject.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<UpdateTodoDTO>> UpdateTodo(UpdateTodoDTO updatedTodo)
+        public async Task<ActionResult<UpdateTodoDTO>> UpdateTodo(UpdateTodoCommand updateTodoCommand,
+            IMediator mediator,
+            CancellationToken cancellationToken = default)
         {
             var currentUserIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (currentUserIdClaim == null) 
-            
-            { 
-                return BadRequest("Invalid user identifier."); 
+            if (currentUserIdClaim == null)
+
+            {
+                return BadRequest("Invalid user identifier.");
             }
 
-            if (updatedTodo.OwnerId != int.Parse(currentUserIdClaim) && !User.IsInRole("Admin"))
+            if (updateTodoCommand.OwnerId != int.Parse(currentUserIdClaim) && !User.IsInRole("Admin"))
             {
                 return Forbid("The current user does not have access to update this todo.");
             }
-            var existingTodo = await _todoService.UpdateTodoAsync(updatedTodo);
+            var existingTodo = await mediator.Send(updateTodoCommand, cancellationToken);
 
             if (existingTodo == null)
             {
                 return NotFound();
             }
 
-            return Ok(updatedTodo);
+            return Ok(existingTodo);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteTodo(int id)
+        public async Task<ActionResult> DeleteTodo(DeleteTodoCommand deleteTodoCommand ,
+            IMediator mediator,
+            CancellationToken cancellationToken = default)
         {
             var currentUserIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (currentUserIdClaim == null) 
-            
-            { 
-                return BadRequest("Invalid user identifier."); 
+            if (currentUserIdClaim == null)
+
+            {
+                return BadRequest("Invalid user identifier.");
             }
 
-            var existingTodo = await _todoService.GetTodoAsync(u => u.Id == id);
-
-            if (existingTodo.OwnerId != int.Parse(currentUserIdClaim) && !User.IsInRole("Admin"))
+            if (deleteTodoCommand.OwnerId != int.Parse(currentUserIdClaim) && !User.IsInRole("Admin"))
             {
                 return Forbid("The current user does not have access to delete this todo.");
             }
 
-            var todoDTO = new UpdateTodoDTO { Id = id };
-            await _todoService.DeleteTodoAsync(todoDTO);
+            await mediator.Send(deleteTodoCommand, cancellationToken);
             return Ok("Todo deleted successfully.");
         }
     }

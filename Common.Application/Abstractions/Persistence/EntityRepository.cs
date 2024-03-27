@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Common.Repositories
+namespace Common.Application
 {
     public class EntityRepository<TEntity> : IRepository<TEntity> where TEntity : class, new()
     {

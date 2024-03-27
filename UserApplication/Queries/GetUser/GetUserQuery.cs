@@ -12,6 +12,6 @@ namespace UserApplication.Queries.GetUser
 {
     public class GetUserQuery : IRequest<GetUserDTO>
     {
-        public Expression<Func<ApplicationUser, bool>>? Predicate { get; } = null;
+        public int UserId { get; set; }
     }
 }

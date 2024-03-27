@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Common.Repositories
+namespace Common.Application
 {
     public static class DbContextDi
     {

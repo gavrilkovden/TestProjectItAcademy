@@ -1,5 +1,5 @@
 using Common.Domain;
-using Common.Repositories;
+using Common.Application;
 using Serilog.Events;
 using Serilog;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
@@ -19,7 +19,7 @@ Log.Logger = new LoggerConfiguration()
 try
 {
     var builder = WebApplication.CreateBuilder(args);
-
+    
     // Add services to the container.
 
     builder.Services.AddControllers();
