@@ -18,16 +18,13 @@ namespace UserApplication.Commands.UpdateUser
     {
         private readonly IRepository<ApplicationUser> _users;
         private readonly IMapper _mapper;
-        private readonly IMemoryCache _memoryCache;
 
         public UpdateUserCommandHandler(
             IRepository<ApplicationUser> users,
-            IMapper mapper,
-            IMemoryCache memoryCache)
+            IMapper mapper)
         {
             _users = users;
             _mapper = mapper;
-            _memoryCache = memoryCache;
         }
 
         public async Task<GetUserDTO> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
@@ -40,7 +37,7 @@ namespace UserApplication.Commands.UpdateUser
             }
 
             await _users.UpdateAsync(_mapper.Map(request, existingUser));
-          //  _memoryCache.Cache.Clear();
+
             return _mapper.Map<GetUserDTO>(existingUser);
         }
     }

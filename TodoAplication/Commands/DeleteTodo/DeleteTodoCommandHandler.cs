@@ -11,12 +11,10 @@ namespace TodoAplication.Commands.DeleteTodo
     public class DeleteTodoCommandHandler : IRequestHandler<DeleteTodoCommand, bool>
     {
         private readonly IRepository<Todo> _todos;
-        private readonly IMemoryCache _memoryCache;
 
-        public DeleteTodoCommandHandler(IRepository<Todo> todos, IMemoryCache memoryCache)
+        public DeleteTodoCommandHandler(IRepository<Todo> todos)
         {
             _todos = todos;
-            _memoryCache = memoryCache;
         }
         public async Task<bool> Handle(DeleteTodoCommand request, CancellationToken cancellationToken)
         {
@@ -29,7 +27,6 @@ namespace TodoAplication.Commands.DeleteTodo
                 throw new NotFoundException("Todo with specified Id not found.");
             }
 
-            //     _memoryCache.Cache.Clear();
             return await _todos.DeleteAsync(existingTodo);
 
         }

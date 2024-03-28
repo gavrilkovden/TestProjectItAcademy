@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Serilog;
 using Common.Application.Exceptions;
+using FluentValidation;
 
 namespace Common.Api
 {
@@ -32,6 +33,10 @@ namespace Common.Api
                     case NotFoundException notFoundException:
                         statusCode = HttpStatusCode.NotFound;
                         result = JsonSerializer.Serialize(notFoundException.Message);
+                        break;
+                    case ValidationException validationException:
+                        statusCode = HttpStatusCode.BadRequest;
+                        result = JsonSerializer.Serialize(validationException.Message);
                         break;
                     case BadRequestException badRequestException:
                         statusCode = HttpStatusCode.BadRequest;

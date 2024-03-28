@@ -13,16 +13,13 @@ namespace UserApplication.Commands.CreateUser
     {
         private readonly IRepository<ApplicationUser> _users;
         private readonly IMapper _mapper;
-        private readonly IMemoryCache _memoryCache;
 
         public CreateUserCommandHandler(
             IRepository<ApplicationUser> users,
-            IMapper mapper,
-            IMemoryCache memoryCache)
+            IMapper mapper)
         {
             _users = users;
             _mapper = mapper;
-            _memoryCache = memoryCache;
         }
 
         public async Task<GetUserDTO> Handle(CreateUserCommand request, CancellationToken cancellationToken)
@@ -43,8 +40,6 @@ namespace UserApplication.Commands.CreateUser
             };
 
             await _users.AddAsync(user, cancellationToken);
-
-       //     _memoryCache.Cache.Clear();
 
             return _mapper.Map<GetUserDTO>(user);
         }

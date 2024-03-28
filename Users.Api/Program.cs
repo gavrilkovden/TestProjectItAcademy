@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using Auth.Api;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
@@ -24,6 +25,8 @@ try
 
     builder.Services.AddControllers();
     builder.Services.AddUserServices();
+    builder.Services.AddUserCommonAplication();
+    builder.Services.AddAuthServices();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(options =>
     {
@@ -55,7 +58,7 @@ try
         });
     });
 
-    builder.Services.AddFluentValidationAutoValidation();
+ //   builder.Services.AddFluentValidationAutoValidation();
     var configuration = builder.Configuration;
     builder.Services.AddTodoDB(configuration);
     builder.Services.AddAuthorization();

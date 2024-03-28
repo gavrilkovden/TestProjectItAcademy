@@ -17,18 +17,11 @@ using UserApplication.Queries.GetUser;
 
 namespace TodosTestProject.Controllers
 {
-  //  [Authorize]
+    [Authorize]
     [ApiController]
     [Route("api/todos")]
     public class TodoController : ControllerBase
     {
-        //private readonly ITodoService _todoService;
-
-        //public TodoController(ITodoService todoService)
-        //{
-        //    _todoService = todoService;
-        //}
-
         [HttpGet("id")]
         public async Task<ActionResult<Todo>> GetTodoById([FromQuery] GetTodoQuery getTodoQuery,
             IMediator mediator,

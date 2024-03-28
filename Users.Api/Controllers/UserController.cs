@@ -16,18 +16,11 @@ using UserApplication.Commands.DeleteUser;
 
 namespace Users.Api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/users")]
     public class UserController : ControllerBase
     {
-        //private readonly IUserService _userService;
-
-        //public UserController(IUserService userService)
-        //{
-        //    _userService = userService;
-
-        //}
-
         [HttpGet("id")]
         public async Task<ActionResult<ApplicationUser>> GetUserById([FromQuery] GetUserQuery getUserQuery,
             IMediator mediator,
@@ -65,7 +58,7 @@ namespace Users.Api.Controllers
             return Ok(users);
         }
 
-
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<ApplicationUser>> AddUser(CreateUserCommand createUserCommand,
             IMediator mediator,

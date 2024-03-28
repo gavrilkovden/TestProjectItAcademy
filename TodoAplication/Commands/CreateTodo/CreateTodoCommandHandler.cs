@@ -14,18 +14,15 @@ namespace TodoAplication.Commands.CreateTodo
     {
         private readonly IRepository<Todo> _todos;
         private readonly IMapper _mapper;
-        private readonly IMemoryCache _memoryCache;
         private readonly IRepository<ApplicationUser> _users;
 
         public CreateTodoCommandHandler(
             IRepository<Todo> todos,
             IMapper mapper,
-            IMemoryCache memoryCache,
             IRepository<ApplicationUser> users)
         {
             _todos = todos;
             _mapper = mapper;
-            _memoryCache = memoryCache;
             _users = users;
         }
 
@@ -40,7 +37,7 @@ namespace TodoAplication.Commands.CreateTodo
             }
 
             var todo = _mapper.Map<Todo>(request);
-            //     _memoryCache.Cache.Clear();
+
             return await _todos.AddAsync(todo);
         }
     }

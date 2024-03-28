@@ -12,6 +12,8 @@ using UserApplication.Commands.UpdateUser;
 using Users.Service.DTO;
 using MediatR;
 using UserApplication.Queries.GetUser;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace UserApplication.Queries.GetAllUsers
 {
@@ -19,26 +21,42 @@ namespace UserApplication.Queries.GetAllUsers
     {
         private readonly IRepository<ApplicationUser> _users;
         private readonly IMapper _mapper;
-        private readonly IMemoryCache _memoryCache;
+        private readonly MemoryCache _memoryCache;
 
         public GetAllUsersQueryHandler(IRepository<ApplicationUser> users,
             IMapper mapper,
-            IMemoryCache memoryCache)
+            UsersMemoryCache memoryCache)
         {
             _users = users;
             _mapper = mapper;
-            _memoryCache = memoryCache;
+            _memoryCache = memoryCache.Cache;
         }
 
         public async Task<IReadOnlyCollection<GetUserDTO>> Handle(GetAllUsersQuery query, CancellationToken cancellationToken)
         {
+            var cashKey = JsonSerializer.Serialize(query, new JsonSerializerOptions()
+            {
+                ReferenceHandler = ReferenceHandler.IgnoreCycles
+            });
+
+            if (_memoryCache.TryGetValue(cashKey, out IReadOnlyCollection<GetUserDTO>? result))
+            {
+                return result!;
+            }
+
             var users = await _users.GetListAsync();
 
             if (!users.Any())
             {
                 throw new NotFoundException("No ApplicationUsers found.");
             }
-          //  _memoryCache.Cache.Clear();
+
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                          .SetAbsoluteExpiration(TimeSpan.FromMinutes(10))
+                          .SetSlidingExpiration(TimeSpan.FromMinutes(5))
+                          .SetSize(3);
+            _memoryCache.Set(cashKey, result, cacheEntryOptions);
+            _memoryCache.Clear();
             return _mapper.Map<IReadOnlyCollection<GetUserDTO>>(users);
 
         }

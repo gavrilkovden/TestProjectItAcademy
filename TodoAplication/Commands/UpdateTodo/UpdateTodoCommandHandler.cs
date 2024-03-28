@@ -14,18 +14,15 @@ namespace TodoAplication.Commands.UpdateTodo
     {
         private readonly IRepository<Todo> _todos;
         private readonly IMapper _mapper;
-        private readonly IMemoryCache _memoryCache;
         private readonly IRepository<ApplicationUser> _users;
 
         public UpdateTodoCommandHandler(
             IRepository<Todo> todos,
             IMapper mapper,
-            IMemoryCache memoryCache,
             IRepository<ApplicationUser> users)
         {
             _todos = todos;
             _mapper = mapper;
-            _memoryCache = memoryCache;
             _users = users;
         }
 
